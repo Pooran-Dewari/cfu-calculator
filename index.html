@@ -7,7 +7,7 @@
     body { font-family: Arial, sans-serif; padding: 20px; }
     .input-section { margin-bottom: 20px; }
     .input-section label { display: block; margin-top: 10px; font-weight: bold; }
-    .input-section input { width: 300px; padding: 5px; }
+    .input-section input, .input-section select { width: 300px; padding: 5px; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #f4f4f4; }
@@ -21,13 +21,19 @@
 
 <div class="input-section">
   <label>OD of Original Culture:</label>
-  <input type="number" id="originalOD" value="0.2" step="any">
+  <input type="number" id="originalOD" value="0.2" step="0.1">
 
   <label>Final CFU/mL for bacterial challenge:</label>
-  <input type="number" id="workingCFU" value="1000000">
+  <select id="workingCFU">
+    <option value="1e4">1.0E+4</option>
+    <option value="1e5">1.0E+5</option>
+    <option value="1e6" selected>1.0E+6</option>
+    <option value="1e7">1.0E+7</option>
+    <option value="1e8">1.0E+8</option>
+  </select>
 
   <label>Final seawater volume for bacterial challenge (mL):</label>
-  <input type="number" id="totalVolume" value="4000">
+  <input type="number" id="totalVolume" value="4000" step="1000">
 </div>
 
 <table>
@@ -81,10 +87,7 @@ function updateCalculations() {
     const dilution2 = parseFloat(row.querySelector(".dilution2").value) || 1;
     const rowOD600 = parseFloat(row.querySelector(".od600").value) || 0;
 
-    // CFU/mL at OD 1.0
     const cfuPerMl = originalOD > 0 ? (colonies * dilution1 * dilution2) / (3 * originalOD) : 0;
-
-    // Final volume = total CFU / (CFU/mL @ OD 1.0 × OD 600)
     const requiredVolume = (cfuPerMl > 0 && rowOD600 > 0) ? totalCFURequired / (cfuPerMl * rowOD600) : 0;
 
     row.querySelector(".cfuPerMl").innerText = isFinite(cfuPerMl) && cfuPerMl > 0 ? cfuPerMl.toExponential(2) : "-";
@@ -143,7 +146,6 @@ function exportToCSV() {
   a.click();
 }
 
-// Attach listeners to all inputs
 document.querySelectorAll("input, select").forEach(el => {
   el.addEventListener("input", updateCalculations);
   el.addEventListener("change", updateCalculations);
