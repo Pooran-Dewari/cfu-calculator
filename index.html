@@ -1,91 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>CFU Calculator</title>
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
     table {
       border-collapse: collapse;
       width: 100%;
-      max-width: 800px;
-      margin: 20px auto;
+      margin-top: 10px;
     }
+
     th, td {
-      border: 1px solid #aaa;
+      border: 1px solid #ddd;
       padding: 8px;
       text-align: center;
     }
+
     th {
-      background-color: #f0f0f0;
+      background-color: #f2f2f2;
     }
-    input, select {
-      width: 100px;
+
+    input {
+      width: 80px;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 15px;
     }
   </style>
 </head>
 <body>
 
-  <h2 style="text-align: center;">CFU Calculator (based on colonies per 10 µL)</h2>
+<div class="title">CFU calculator</div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Strain</th>
-        <th>Colonies per 10 µL</th>
-        <th>Dilution Factor 1</th>
-        <th>Dilution Factor 2 (fixed: 100)</th>
-        <th>CFU/mL @ 0.2 OD</th>
-        <th>CFU/mL @ 0.1 OD</th>
-      </tr>
-    </thead>
-    <tbody id="cfu-table-body">
-      <!-- Table rows will be inserted here by JavaScript -->
-    </tbody>
-  </table>
+<table>
+  <thead>
+    <tr>
+      <th>Strain</th>
+      <th>Colonies per 30 µL</th>
+      <th>Dilution Factor 1</th>
+      <th>Dilution Factor 2<br>(10 µL to 1 mL)</th>
+      <th>CFU/mL @ 0.2 OD</th>
+      <th>CFU/mL @ 0.1 OD</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><input type="text" value="855"></td>
+      <td><input type="number" class="colonies" value="19"></td>
+      <td>
+        <select class="dilution1">
+          <option value="1e3">1e3</option>
+          <option value="1e4">1e4</option>
+          <option value="1e5">1e5</option>
+          <option value="1e6" selected>1e6</option>
+          <option value="1e7">1e7</option>
+          <option value="1e8">1e8</option>
+        </select>
+      </td>
+      <td><input type="number" class="dilution2" value="100"></td>
+      <td class="cfu0_2">-</td>
+      <td class="cfu0_1">-</td>
+    </tr>
+    <tr>
+      <td><input type="text" value="1128"></td>
+      <td><input type="number" class="colonies" value="42"></td>
+      <td>
+        <select class="dilution1">
+          <option value="1e3">1e3</option>
+          <option value="1e4" selected>1e4</option>
+          <option value="1e5">1e5</option>
+          <option value="1e6">1e6</option>
+          <option value="1e7">1e7</option>
+          <option value="1e8">1e8</option>
+        </select>
+      </td>
+      <td><input type="number" class="dilution2" value="100"></td>
+      <td class="cfu0_2">-</td>
+      <td class="cfu0_1">-</td>
+    </tr>
+    <tr>
+      <td><input type="text" value="1159"></td>
+      <td><input type="number" class="colonies" value="13"></td>
+      <td>
+        <select class="dilution1">
+          <option value="1e3">1e3</option>
+          <option value="1e4">1e4</option>
+          <option value="1e5">1e5</option>
+          <option value="1e6" selected>1e6</option>
+          <option value="1e7">1e7</option>
+          <option value="1e8">1e8</option>
+        </select>
+      </td>
+      <td><input type="number" class="dilution2" value="100"></td>
+      <td class="cfu0_2">-</td>
+      <td class="cfu0_1">-</td>
+    </tr>
+    <tr>
+      <td><input type="text" value="1572"></td>
+      <td><input type="number" class="colonies" value="36"></td>
+      <td>
+        <select class="dilution1">
+          <option value="1e3">1e3</option>
+          <option value="1e4">1e4</option>
+          <option value="1e5">1e5</option>
+          <option value="1e6" selected>1e6</option>
+          <option value="1e7">1e7</option>
+          <option value="1e8">1e8</option>
+        </select>
+      </td>
+      <td><input type="number" class="dilution2" value="100"></td>
+      <td class="cfu0_2">-</td>
+      <td class="cfu0_1">-</td>
+    </tr>
+  </tbody>
+</table>
 
-  <script>
-    const strains = ["855", "1128", "1159", "1572"];
-    const dilutionOptions = ["1e3", "1e4", "1e5", "1e6", "1e7", "1e8"];
-    const dilution2 = 100;
+<script>
+  function updateCalculations() {
+    const rows = document.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+      const colonies = parseFloat(row.querySelector(".colonies").value) || 0;
+      const dilution1 = parseFloat(row.querySelector(".dilution1").value) || 1;
+      const dilution2 = parseFloat(row.querySelector(".dilution2").value) || 1;
 
-    const tbody = document.getElementById("cfu-table-body");
+      // CFU/mL = colonies × dilution1 × dilution2 / 3
+      const cfu_0_2 = (colonies * dilution1 * dilution2 ) / 3;
+      const cfu_0_1 = cfu_0_2 / 2;
 
-    strains.forEach(strain => {
-      const row = document.createElement("tr");
-
-      row.innerHTML = `
-        <td>${strain}</td>
-        <td><input type="number" id="colonies-${strain}" oninput="calculate('${strain}')"></td>
-        <td>
-          <select id="dilution1-${strain}" onchange="calculate('${strain}')">
-            ${dilutionOptions.map(val => `<option value="${val}">${val}</option>`).join("")}
-          </select>
-        </td>
-        <td>${dilution2}</td>
-        <td><span id="cfu_02-${strain}">-</span></td>
-        <td><span id="cfu_01-${strain}">-</span></td>
-      `;
-
-      tbody.appendChild(row);
+      row.querySelector(".cfu0_2").innerText = cfu_0_2.toExponential(2);
+      row.querySelector(".cfu0_1").innerText = cfu_0_1.toExponential(2);
     });
+  }
 
-    function calculate(strain) {
-      const colonies = parseFloat(document.getElementById(`colonies-${strain}`).value);
-      const dilution1 = parseFloat(document.getElementById(`dilution1-${strain}`).value);
+  document.querySelectorAll("input, select").forEach(input => {
+    input.addEventListener("input", updateCalculations);
+  });
 
-      if (!isNaN(colonies) && !isNaN(dilution1)) {
-        const cfu_02 = colonies * dilution1 * dilution2;
-        const cfu_01 = cfu_02 / 2;
-
-        document.getElementById(`cfu_02-${strain}`).textContent = cfu_02.toExponential(2);
-        document.getElementById(`cfu_01-${strain}`).textContent = cfu_01.toExponential(2);
-      } else {
-        document.getElementById(`cfu_02-${strain}`).textContent = "-";
-        document.getElementById(`cfu_01-${strain}`).textContent = "-";
-      }
-    }
-  </script>
+  // Initial calculation
+  updateCalculations();
+</script>
 
 </body>
 </html>
