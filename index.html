@@ -85,7 +85,7 @@
   </thead>
   <tbody id="tableBody">
     <tr>
-      <td><input type="text" value="855"></td>
+      <td><input type="text" class="strain" value="855"></td>
       <td><input type="number" class="colonies" value="19"></td>
       <td>
         <select class="dilution1">
@@ -102,7 +102,7 @@
       <td class="requiredVolume">-</td>
     </tr>
     <tr>
-      <td><input type="text" value="1128"></td>
+      <td><input type="text" class="strain" value="1128"></td>
       <td><input type="number" class="colonies" value="42"></td>
       <td>
         <select class="dilution1">
@@ -119,7 +119,7 @@
       <td class="requiredVolume">-</td>
     </tr>
     <tr>
-      <td><input type="text" value="1159"></td>
+      <td><input type="text" class="strain" value="1159"></td>
       <td><input type="number" class="colonies" value="13"></td>
       <td>
         <select class="dilution1">
@@ -155,10 +155,10 @@ function updateCalculations() {
     const dilution2 = parseFloat(row.querySelector(".dilution2").value) || 1;
 
     const cfuPerMl = ((colonies * dilution1 * dilution2) / 3) / originalOD;
+    const requiredVolume = totalCFURequired / (cfuPerMl * originalOD);
+
     row.querySelector(".cfuPerMl").innerText = isFinite(cfuPerMl) ? cfuPerMl.toExponential(2) : "-";
     row.querySelector(".totalCFU").innerText = isFinite(totalCFURequired) ? totalCFURequired.toExponential(2) : "-";
-
-    const requiredVolume = totalCFURequired / (cfuPerMl * originalOD);
     row.querySelector(".requiredVolume").innerText = isFinite(requiredVolume) ? requiredVolume.toFixed(2) : "-";
   });
 }
@@ -168,8 +168,8 @@ function exportToCSV() {
 
   const rows = document.querySelectorAll("#tableBody tr");
   rows.forEach(row => {
-    const strain = row.querySelector("td:nth-child(1) input").value;
-    const colonies = row.querySelector("td:nth-child(2) input").value;
+    const strain = row.querySelector(".strain").value;
+    const colonies = row.querySelector(".colonies").value;
     const dilution1 = row.querySelector(".dilution1").value;
     const dilution2 = row.querySelector(".dilution2").value;
     const cfuPerMl = row.querySelector(".cfuPerMl").innerText;
@@ -189,19 +189,15 @@ function exportToCSV() {
   document.body.removeChild(a);
 }
 
-// Event listeners for table and inputs
-document.querySelectorAll("#tableBody input, #tableBody select").forEach(el => {
-  el.addEventListener("input", updateCalculations);
-  el.addEventListener("change", updateCalculations);
-});
+// Attach event listeners
+function attachListeners() {
+  document.querySelectorAll("input, select").forEach(el => {
+    el.addEventListener("input", updateCalculations);
+    el.addEventListener("change", updateCalculations);
+  });
+}
 
-// Also listen for top input fields
-['workingCFU', 'totalVolume', 'originalOD'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener("input", updateCalculations);
-  el.addEventListener("change", updateCalculations);
-});
-
+attachListeners();
 updateCalculations();
 </script>
 
