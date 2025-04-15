@@ -34,6 +34,12 @@
       font-weight: bold;
       margin-bottom: 15px;
     }
+
+    .section-title {
+      margin-top: 40px;
+      font-size: 20px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -123,6 +129,49 @@
   </tbody>
 </table>
 
+<div class="section-title">Additional Calculations for Bacterial Culture</div>
+<table>
+  <thead>
+    <tr>
+      <th>Working CFU/mL</th>
+      <th>Total Volume Oysters (mL)</th>
+      <th>Total CFU Required</th>
+      <th>OD 600</th>
+      <th>Bacterial Culture in mL Required (for 4L)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><input type="number" class="working-cfu" value="1.00E+06"></td>
+      <td><input type="number" class="total-volume" value="4000"></td>
+      <td class="total-cfu">-</td>
+      <td><input type="number" class="od600" value="0.2"></td>
+      <td class="culture-volume">-</td>
+    </tr>
+    <tr>
+      <td><input type="number" class="working-cfu" value="1.00E+06"></td>
+      <td><input type="number" class="total-volume" value="4000"></td>
+      <td class="total-cfu">-</td>
+      <td><input type="number" class="od600" value="0.565"></td>
+      <td class="culture-volume">-</td>
+    </tr>
+    <tr>
+      <td><input type="number" class="working-cfu" value="1.00E+06"></td>
+      <td><input type="number" class="total-volume" value="4000"></td>
+      <td class="total-cfu">-</td>
+      <td><input type="number" class="od600" value="0.2"></td>
+      <td class="culture-volume">-</td>
+    </tr>
+    <tr>
+      <td><input type="number" class="working-cfu" value="1.00E+06"></td>
+      <td><input type="number" class="total-volume" value="4000"></td>
+      <td class="total-cfu">-</td>
+      <td><input type="number" class="od600" value="0.25"></td>
+      <td class="culture-volume">-</td>
+    </tr>
+  </tbody>
+</table>
+
 <script>
   function updateCalculations() {
     const rows = document.querySelectorAll("tbody tr");
@@ -137,6 +186,20 @@
 
       row.querySelector(".cfu0_2").innerText = cfu_0_2.toExponential(2);
       row.querySelector(".cfu0_1").innerText = cfu_0_1.toExponential(2);
+    });
+
+    // Additional calculations for bacterial culture
+    const cultureRows = document.querySelectorAll(".section-title + table tbody tr");
+    cultureRows.forEach(row => {
+      const workingCfu = parseFloat(row.querySelector(".working-cfu").value) || 1;
+      const totalVolume = parseFloat(row.querySelector(".total-volume").value) || 4000;
+      const od600 = parseFloat(row.querySelector(".od600").value) || 0.2;
+
+      const totalCfu = workingCfu * totalVolume;
+      const cultureVolume = (totalCfu) / (od600 * 1e9); // Adjusting the formula for culture volume in mL
+
+      row.querySelector(".total-cfu").innerText = totalCfu.toExponential(2);
+      row.querySelector(".culture-volume").innerText = cultureVolume.toFixed(2);
     });
   }
 
