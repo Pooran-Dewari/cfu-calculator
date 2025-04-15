@@ -4,84 +4,90 @@
   <meta charset="UTF-8">
   <title>CFU Calculator</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; }
-    table { border-collapse: collapse; width: 100%; max-width: 800px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background-color: #f2f2f2; }
-    input[type="number"] { width: 80px; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 800px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #f5f5f5;
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    select {
+      width: 100%;
+    }
   </style>
 </head>
 <body>
+  <h2>Interactive CFU/mL Calculator</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Strain</th>
+        <th>Colonies per 10 μL</th>
+        <th>Dilution Factor 1</th>
+        <th>Dilution Factor 2<br>(10μL to 1mL)</th>
+        <th>cfu/mL @ 0.2 OD</th>
+        <th>cfu/mL @ 0.1 OD</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input value="855"></td>
+        <td><input type="number" value="6.33" class="colonies"></td>
+        <td>
+          <select class="dilution1">
+            <option value="1e3">1e3</option>
+            <option value="1e4">1e4</option>
+            <option value="1e5">1e5</option>
+            <option value="1e6" selected>1e6</option>
+            <option value="1e7">1e7</option>
+            <option value="1e8">1e8</option>
+          </select>
+        </td>
+        <td><input type="number" value="100" class="dilution2"></td>
+        <td class="cfu-02"></td>
+        <td class="cfu-01"></td>
+      </tr>
+      <!-- Add more rows if needed -->
+    </tbody>
+  </table>
 
-<h2>CFU/mL Calculator (from colonies/30 µL)</h2>
+  <script>
+    function calculateAll() {
+      document.querySelectorAll("tbody tr").forEach(row => {
+        const colonies = parseFloat(row.querySelector(".colonies").value);
+        const dilution1 = parseFloat(row.querySelector(".dilution1").value);
+        const dilution2 = parseFloat(row.querySelector(".dilution2").value);
 
-<table>
-  <thead>
-    <tr>
-      <th>Strain</th>
-      <th>Colonies per 30 µL</th>
-      <th>Dilution Factor 1</th>
-      <th>Dilution Factor 2<br>(10 µL to 1 mL)</th>
-      <th>CFU/mL @ 0.2 OD</th>
-      <th>CFU/mL @ 0.1 OD</th>
-    </tr>
-  </thead>
-  <tbody id="cfu-table">
-    <!-- JS will insert rows -->
-  </tbody>
-</table>
+        const cfu_02 = colonies * dilution1 * dilution2;
+        const cfu_01 = cfu_02 / 2;
 
-<script>
-const strains = [
-  { strain: 855, colonies: 19, df1: 1e6, df2: 100 },
-  { strain: 1128, colonies: 42, df1: 1e4, df2: 100 },
-  { strain: 1159, colonies: 13, df1: 1e6, df2: 100 },
-  { strain: 1572, colonies: 36, df1: 1e6, df2: 100 },
-];
-
-function calcCFU(colonies, df1, df2) {
-  const coloniesPer10uL = colonies / 3;
-  const cfu_mL = coloniesPer10uL * df1 * df2;
-  return {
-    od02: cfu_mL.toExponential(2),
-    od01: (cfu_mL / 2).toExponential(2)
-  };
-}
-
-const table = document.getElementById("cfu-table");
-
-strains.forEach((s, idx) => {
-  const row = document.createElement("tr");
-
-  const cfu = calcCFU(s.colonies, s.df1, s.df2);
-
-  row.innerHTML = `
-    <td>${s.strain}</td>
-    <td><input type="number" value="${s.colonies}" data-idx="${idx}" /></td>
-    <td>${s.df1.toExponential()}</td>
-    <td>${s.df2}</td>
-    <td class="cfu02">${cfu.od02}</td>
-    <td class="cfu01">${cfu.od01}</td>
-  `;
-
-  table.appendChild(row);
-});
-
-document.querySelectorAll('input[type="number"]').forEach(input => {
-  input.addEventListener("input", e => {
-    const idx = +e.target.dataset.idx;
-    const val = +e.target.value;
-    if (!isNaN(val)) {
-      const { df1, df2 } = strains[idx];
-      const cfu = calcCFU(val, df1, df2);
-
-      const row = e.target.closest("tr");
-      row.querySelector(".cfu02").textContent = cfu.od02;
-      row.querySelector(".cfu01").textContent = cfu.od01;
+        row.querySelector(".cfu-02").textContent = cfu_02.toExponential(2);
+        row.querySelector(".cfu-01").textContent = cfu_01.toExponential(2);
+      });
     }
-  });
-});
-</script>
 
+    // Attach event listeners
+    document.querySelectorAll("input, select").forEach(el => {
+      el.addEventListener("input", calculateAll);
+      el.addEventListener("change", calculateAll);
+    });
+
+    // Initial calculation
+    calculateAll();
+  </script>
 </body>
 </html>
