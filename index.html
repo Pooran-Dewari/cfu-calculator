@@ -195,11 +195,15 @@
       const totalVolume = parseFloat(row.querySelector(".total-volume").value) || 4000;
       const od600 = parseFloat(row.querySelector(".od600").value) || 0.2;
 
+      // Total CFU = Working CFU/mL * Total Volume Oysters (mL)
       const totalCfu = workingCfu * totalVolume;
-      const cultureVolume = (totalCfu) / (od600 * 1e9); // Adjusting the formula for culture volume in mL
 
-      row.querySelector(".total-cfu").innerText = totalCfu.toExponential(2);
-      row.querySelector(".culture-volume").innerText = cultureVolume.toFixed(2);
+      // Bacterial culture volume required calculation
+      const cfu_0_1 = parseFloat(row.querySelector(".cfu0_1").innerText) || 1;
+      const cultureVolume = totalCfu / (od600 * cfu_0_1); // Adjusting for OD600 and CFU at 0.1 OD
+
+      row.querySelector(".total-cfu").innerText = totalCfu.toExponential(2); // Display the Total CFU Required
+      row.querySelector(".culture-volume").innerText = cultureVolume.toFixed(2); // Display bacterial culture volume
     });
   }
 
