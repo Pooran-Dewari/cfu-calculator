@@ -118,23 +118,6 @@
       <td class="totalCFU">-</td>
       <td class="requiredVolume">-</td>
     </tr>
-    <tr>
-      <td><input type="text" class="strain" value="1159"></td>
-      <td><input type="number" class="colonies" value="13"></td>
-      <td>
-        <select class="dilution1">
-          <option value="1e3">1e3</option>
-          <option value="1e4">1e4</option>
-          <option value="1e5">1e5</option>
-          <option value="1e6" selected>1e6</option>
-          <option value="1e7">1e7</option>
-        </select>
-      </td>
-      <td><input type="number" class="dilution2" value="100"></td>
-      <td class="cfuPerMl">-</td>
-      <td class="totalCFU">-</td>
-      <td class="requiredVolume">-</td>
-    </tr>
   </tbody>
 </table>
 
@@ -154,7 +137,9 @@ function updateCalculations() {
     const dilution1 = parseFloat(row.querySelector(".dilution1").value) || 1;
     const dilution2 = parseFloat(row.querySelector(".dilution2").value) || 1;
 
-    const cfuPerMl = ((colonies * dilution1 * dilution2) / 3) / originalOD;
+    // CFU/mL at OD 1.0 (i.e., what it would be if culture were normalized to OD 1)
+    const cfuPerMl = (colonies * dilution1 * dilution2) / (3 * originalOD);
+
     const requiredVolume = totalCFURequired / (cfuPerMl * originalOD);
 
     row.querySelector(".cfuPerMl").innerText = isFinite(cfuPerMl) ? cfuPerMl.toExponential(2) : "-";
@@ -164,9 +149,9 @@ function updateCalculations() {
 }
 
 function exportToCSV() {
-  let csv = 'Strain,Colonies per 30 uL,Dilution Factor 1,Dilution Factor 2,CFU/mL @ OD 1.0,Total CFU Required,Bacterial Culture in mL Required (for 4L)\n';
-
+  let csv = 'Strain,Colonies,Dilution1,Dilution2,CFU/mL @ OD1,Total CFU Required,Bacterial Culture mL\n';
   const rows = document.querySelectorAll("#tableBody tr");
+
   rows.forEach(row => {
     const strain = row.querySelector(".strain").value;
     const colonies = row.querySelector(".colonies").value;
@@ -180,24 +165,18 @@ function exportToCSV() {
   });
 
   const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'cfu_calculations.csv';
-  document.body.appendChild(a);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "cfu_data.csv";
   a.click();
-  document.body.removeChild(a);
 }
 
-// Attach event listeners to ALL inputs
-function attachListeners() {
-  document.querySelectorAll("input, select").forEach(el => {
-    el.addEventListener("input", updateCalculations);
-    el.addEventListener("change", updateCalculations);
-  });
-}
+document.querySelectorAll("input, select").forEach(el => {
+  el.addEventListener("input", updateCalculations);
+  el.addEventListener("change", updateCalculations);
+});
 
-attachListeners();
+// Initial run
 updateCalculations();
 </script>
 
