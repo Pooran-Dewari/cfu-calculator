@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>CFU Calculator</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
+    body { font-family: Arial, sans-serif; padding: 20px; }
     .input-section { margin-bottom: 20px; }
     .input-section label { display: block; margin-top: 10px; font-weight: bold; }
     .input-section input { width: 300px; padding: 5px; }
@@ -12,6 +12,7 @@
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #f4f4f4; }
     .btn { margin-top: 20px; padding: 10px; font-size: 14px; cursor: pointer; margin-right: 10px; }
+    input[type="number"], input[type="text"], select { width: 100px; }
   </style>
 </head>
 <body>
@@ -37,8 +38,9 @@
       <th>Dilution Factor 1<br>(fold dilution)</th>
       <th>Dilution Factor 2<br>(10 µL to 1 mL)</th>
       <th>CFU/mL @ OD 1.0</th>
+      <th>OD 600</th>
       <th>Total CFU Required</th>
-      <th>Bacterial Culture in mL Required (for final volume)</th>
+      <th>Bacterial Culture in mL Required</th>
     </tr>
   </thead>
   <tbody id="tableBody">
@@ -56,6 +58,7 @@
       </td>
       <td><input type="number" class="dilution2" value="100"></td>
       <td class="cfuPerMl">-</td>
+      <td><input type="number" class="od600" value="0.2" step="any"></td>
       <td class="totalCFU">-</td>
       <td class="requiredVolume">-</td>
     </tr>
@@ -70,18 +73,21 @@ function updateCalculations() {
   const originalOD = parseFloat(document.getElementById("originalOD").value) || 0;
   const workingCFU = parseFloat(document.getElementById("workingCFU").value) || 0;
   const totalVolume = parseFloat(document.getElementById("totalVolume").value) || 0;
-
   const totalCFURequired = workingCFU * totalVolume;
 
   document.querySelectorAll("#tableBody tr").forEach(row => {
     const colonies = parseFloat(row.querySelector(".colonies").value) || 0;
     const dilution1 = parseFloat(row.querySelector(".dilution1").value) || 1;
     const dilution2 = parseFloat(row.querySelector(".dilution2").value) || 1;
+    const rowOD600 = parseFloat(row.querySelector(".od600").value) || 0;
 
-    const cfuPerMlOD1 = originalOD > 0 ? (colonies * dilution1 * dilution2) / (3 * originalOD) : 0;
-    const requiredVolume = cfuPerMlOD1 > 0 ? totalCFURequired / (cfuPerMlOD1 * originalOD) : 0;
+    // CFU/mL at OD 1.0
+    const cfuPerMl = originalOD > 0 ? (colonies * dilution1 * dilution2) / (3 * originalOD) : 0;
 
-    row.querySelector(".cfuPerMl").innerText = isFinite(cfuPerMlOD1) && cfuPerMlOD1 > 0 ? cfuPerMlOD1.toExponential(2) : "-";
+    // Final volume = total CFU / (CFU/mL @ OD 1.0 × OD 600)
+    const requiredVolume = (cfuPerMl > 0 && rowOD600 > 0) ? totalCFURequired / (cfuPerMl * rowOD600) : 0;
+
+    row.querySelector(".cfuPerMl").innerText = isFinite(cfuPerMl) && cfuPerMl > 0 ? cfuPerMl.toExponential(2) : "-";
     row.querySelector(".totalCFU").innerText = isFinite(totalCFURequired) && totalCFURequired > 0 ? totalCFURequired.toExponential(2) : "-";
     row.querySelector(".requiredVolume").innerText = isFinite(requiredVolume) && requiredVolume > 0 ? requiredVolume.toFixed(2) : "-";
   });
@@ -103,47 +109,46 @@ function addRow() {
     </td>
     <td><input type="number" class="dilution2" value="100"></td>
     <td class="cfuPerMl">-</td>
+    <td><input type="number" class="od600" value="0.2" step="any"></td>
     <td class="totalCFU">-</td>
     <td class="requiredVolume">-</td>
   `;
   document.getElementById("tableBody").appendChild(row);
-
   row.querySelectorAll("input, select").forEach(el => {
     el.addEventListener("input", updateCalculations);
     el.addEventListener("change", updateCalculations);
   });
-
   updateCalculations();
 }
 
 function exportToCSV() {
-  let csv = 'Strain,Colonies,Dilution1,Dilution2,CFU/mL @ OD1,Total CFU Required,Bacterial Culture mL\n';
+  let csv = 'Strain,Colonies,Dilution1,Dilution2,CFU/mL @ OD1,OD600,Total CFU Required,Bacterial Culture (mL)\n';
   document.querySelectorAll("#tableBody tr").forEach(row => {
     const strain = row.querySelector(".strain").value;
     const colonies = row.querySelector(".colonies").value;
     const dilution1 = row.querySelector(".dilution1").value;
     const dilution2 = row.querySelector(".dilution2").value;
     const cfuPerMl = row.querySelector(".cfuPerMl").innerText;
+    const od600 = row.querySelector(".od600").value;
     const totalCFU = row.querySelector(".totalCFU").innerText;
     const requiredVolume = row.querySelector(".requiredVolume").innerText;
 
-    csv += `${strain},${colonies},${dilution1},${dilution2},${cfuPerMl},${totalCFU},${requiredVolume}\n`;
+    csv += `${strain},${colonies},${dilution1},${dilution2},${cfuPerMl},${od600},${totalCFU},${requiredVolume}\n`;
   });
 
   const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "cfu_data.csv";
+  a.download = "cfu_calculations.csv";
   a.click();
 }
 
-// Hook up listeners
+// Attach listeners to all inputs
 document.querySelectorAll("input, select").forEach(el => {
   el.addEventListener("input", updateCalculations);
   el.addEventListener("change", updateCalculations);
 });
 
-// Initial run
 updateCalculations();
 </script>
 
