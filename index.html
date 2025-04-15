@@ -1,93 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CFU Calculator</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
     table {
       border-collapse: collapse;
       width: 100%;
       max-width: 800px;
+      margin: 20px auto;
     }
     th, td {
-      border: 1px solid #ccc;
-      padding: 8px 12px;
+      border: 1px solid #aaa;
+      padding: 8px;
       text-align: center;
     }
     th {
-      background-color: #f5f5f5;
+      background-color: #f0f0f0;
     }
-    input {
-      width: 100%;
-      box-sizing: border-box;
-    }
-    select {
-      width: 100%;
+    input, select {
+      width: 100px;
     }
   </style>
 </head>
 <body>
-  <h2>Interactive CFU/mL Calculator</h2>
+
+  <h2 style="text-align: center;">CFU Calculator (based on colonies per 10 µL)</h2>
+
   <table>
     <thead>
       <tr>
         <th>Strain</th>
-        <th>Colonies per 10 μL</th>
+        <th>Colonies per 10 µL</th>
         <th>Dilution Factor 1</th>
-        <th>Dilution Factor 2<br>(10μL to 1mL)</th>
-        <th>cfu/mL @ 0.2 OD</th>
-        <th>cfu/mL @ 0.1 OD</th>
+        <th>Dilution Factor 2 (fixed: 100)</th>
+        <th>CFU/mL @ 0.2 OD</th>
+        <th>CFU/mL @ 0.1 OD</th>
       </tr>
     </thead>
-    <tbody>
-      <tr>
-        <td><input value="855"></td>
-        <td><input type="number" value="6.33" class="colonies"></td>
-        <td>
-          <select class="dilution1">
-            <option value="1e3">1e3</option>
-            <option value="1e4">1e4</option>
-            <option value="1e5">1e5</option>
-            <option value="1e6" selected>1e6</option>
-            <option value="1e7">1e7</option>
-            <option value="1e8">1e8</option>
-          </select>
-        </td>
-        <td><input type="number" value="100" class="dilution2"></td>
-        <td class="cfu-02"></td>
-        <td class="cfu-01"></td>
-      </tr>
-      <!-- Add more rows if needed -->
+    <tbody id="cfu-table-body">
+      <!-- Table rows will be inserted here by JavaScript -->
     </tbody>
   </table>
 
   <script>
-    function calculateAll() {
-      document.querySelectorAll("tbody tr").forEach(row => {
-        const colonies = parseFloat(row.querySelector(".colonies").value);
-        const dilution1 = parseFloat(row.querySelector(".dilution1").value);
-        const dilution2 = parseFloat(row.querySelector(".dilution2").value);
+    const strains = ["855", "1128", "1159", "1572"];
+    const dilutionOptions = ["1e3", "1e4", "1e5", "1e6", "1e7", "1e8"];
+    const dilution2 = 100;
 
+    const tbody = document.getElementById("cfu-table-body");
+
+    strains.forEach(strain => {
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${strain}</td>
+        <td><input type="number" id="colonies-${strain}" oninput="calculate('${strain}')"></td>
+        <td>
+          <select id="dilution1-${strain}" onchange="calculate('${strain}')">
+            ${dilutionOptions.map(val => `<option value="${val}">${val}</option>`).join("")}
+          </select>
+        </td>
+        <td>${dilution2}</td>
+        <td><span id="cfu_02-${strain}">-</span></td>
+        <td><span id="cfu_01-${strain}">-</span></td>
+      `;
+
+      tbody.appendChild(row);
+    });
+
+    function calculate(strain) {
+      const colonies = parseFloat(document.getElementById(`colonies-${strain}`).value);
+      const dilution1 = parseFloat(document.getElementById(`dilution1-${strain}`).value);
+
+      if (!isNaN(colonies) && !isNaN(dilution1)) {
         const cfu_02 = colonies * dilution1 * dilution2;
         const cfu_01 = cfu_02 / 2;
 
-        row.querySelector(".cfu-02").textContent = cfu_02.toExponential(2);
-        row.querySelector(".cfu-01").textContent = cfu_01.toExponential(2);
-      });
+        document.getElementById(`cfu_02-${strain}`).textContent = cfu_02.toExponential(2);
+        document.getElementById(`cfu_01-${strain}`).textContent = cfu_01.toExponential(2);
+      } else {
+        document.getElementById(`cfu_02-${strain}`).textContent = "-";
+        document.getElementById(`cfu_01-${strain}`).textContent = "-";
+      }
     }
-
-    // Attach event listeners
-    document.querySelectorAll("input, select").forEach(el => {
-      el.addEventListener("input", calculateAll);
-      el.addEventListener("change", calculateAll);
-    });
-
-    // Initial calculation
-    calculateAll();
   </script>
+
 </body>
 </html>
