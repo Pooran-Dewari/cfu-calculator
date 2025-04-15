@@ -189,7 +189,7 @@ function exportToCSV() {
   document.body.removeChild(a);
 }
 
-// Attach event listeners
+// Attach event listeners to ALL inputs
 function attachListeners() {
   document.querySelectorAll("input, select").forEach(el => {
     el.addEventListener("input", updateCalculations);
