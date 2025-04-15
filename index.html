@@ -7,7 +7,7 @@
     body { font-family: Arial; padding: 20px; }
     .input-section { margin-bottom: 20px; }
     .input-section label { display: block; margin-top: 10px; font-weight: bold; }
-    .input-section input { width: 200px; padding: 5px; }
+    .input-section input { width: 300px; padding: 5px; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #f4f4f4; }
@@ -19,14 +19,14 @@
 <h2>CFU Calculator</h2>
 
 <div class="input-section">
-  <label>Working CFU/mL:</label>
-  <input type="number" id="workingCFU" value="1000000">
-
-  <label>Total Volume Oysters (mL):</label>
-  <input type="number" id="totalVolume" value="4000">
-
   <label>OD of Original Culture:</label>
   <input type="number" id="originalOD" value="0.2" step="any">
+
+  <label>Final CFU/mL for bacterial challenge:</label>
+  <input type="number" id="workingCFU" value="1000000">
+
+  <label>Final seawater volume for bacterial challenge (mL):</label>
+  <input type="number" id="totalVolume" value="4000">
 </div>
 
 <table>
@@ -38,7 +38,7 @@
       <th>Dilution Factor 2<br>(10 µL to 1 mL)</th>
       <th>CFU/mL @ OD 1.0</th>
       <th>Total CFU Required</th>
-      <th>Bacterial Culture in mL Required (for 4L)</th>
+      <th>Bacterial Culture in mL Required (for final volume)</th>
     </tr>
   </thead>
   <tbody id="tableBody">
@@ -67,9 +67,9 @@
 
 <script>
 function updateCalculations() {
+  const originalOD = parseFloat(document.getElementById("originalOD").value) || 0;
   const workingCFU = parseFloat(document.getElementById("workingCFU").value) || 0;
   const totalVolume = parseFloat(document.getElementById("totalVolume").value) || 0;
-  const originalOD = parseFloat(document.getElementById("originalOD").value) || 0;
 
   const totalCFURequired = workingCFU * totalVolume;
 
@@ -137,11 +137,13 @@ function exportToCSV() {
   a.click();
 }
 
+// Hook up listeners
 document.querySelectorAll("input, select").forEach(el => {
   el.addEventListener("input", updateCalculations);
   el.addEventListener("change", updateCalculations);
 });
 
+// Initial run
 updateCalculations();
 </script>
 
