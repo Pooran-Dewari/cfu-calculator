@@ -33,14 +33,6 @@
       width: 100px;
       padding: 4px;
     }
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    input[type=number] {
-      -moz-appearance: textfield;
-    }
     .btn {
       margin-top: 20px;
       padding: 10px 15px;
@@ -57,7 +49,7 @@
 
 <div class="input-section">
   <label for="originalOD">OD of Original Culture:</label>
-  <input type="number" id="originalOD" value="0.2" step="0.01" min="0.01" max="5">
+  <input type="number" id="originalOD" value="0.2" step="0.1" min="0.01" max="5">
 
   <label for="workingCFU">Final CFU/mL for bacterial challenge:</label>
   <select id="workingCFU">
@@ -98,9 +90,9 @@
           <option value="1e7">1e7</option>
         </select>
       </td>
-      <td><input type="number" class="dilution2" value="100" min="1" step="1"></td>
+      <td><input type="number" class="dilution2" value="100" min="1"></td>
       <td class="cfuPerMl">-</td>
-      <td><input type="number" class="od600" value="0.2" step="0.01" min="0.01" max="5"></td>
+      <td><input type="number" class="od600" value="0.2" min="0.01" max="5"></td>
       <td class="totalCFU">-</td>
       <td class="requiredVolume">-</td>
     </tr>
@@ -131,7 +123,7 @@ function updateCalculations() {
     let cfuPerMl = "-";
     let finalVol = "-";
 
-    if (colonies > 0 && dilution2 > 0 && originalOD > 0 && od600 > 0) {
+    if (colonies > 0 && dilution2 > 0 && originalOD > 0) {
       const rawCFU = (colonies * dilution1 * dilution2) / 3;
       cfuPerMl = rawCFU / originalOD;
 
