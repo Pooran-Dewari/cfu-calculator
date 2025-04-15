@@ -72,8 +72,8 @@
         </select>
       </td>
       <td><input type="number" class="dilution2" value="100"></td>
-      <td class="cfu0_2">-</td>
-      <td class="cfu0_1">-</td>
+      <td class="cfu_0_2">-</td>
+      <td class="cfu_0_1">-</td>
     </tr>
     <tr>
       <td><input type="text" value="1128"></td>
@@ -89,8 +89,8 @@
         </select>
       </td>
       <td><input type="number" class="dilution2" value="100"></td>
-      <td class="cfu0_2">-</td>
-      <td class="cfu0_1">-</td>
+      <td class="cfu_0_2">-</td>
+      <td class="cfu_0_1">-</td>
     </tr>
     <tr>
       <td><input type="text" value="1159"></td>
@@ -106,8 +106,8 @@
         </select>
       </td>
       <td><input type="number" class="dilution2" value="100"></td>
-      <td class="cfu0_2">-</td>
-      <td class="cfu0_1">-</td>
+      <td class="cfu_0_2">-</td>
+      <td class="cfu_0_1">-</td>
     </tr>
     <tr>
       <td><input type="text" value="1572"></td>
@@ -123,8 +123,8 @@
         </select>
       </td>
       <td><input type="number" class="dilution2" value="100"></td>
-      <td class="cfu0_2">-</td>
-      <td class="cfu0_1">-</td>
+      <td class="cfu_0_2">-</td>
+      <td class="cfu_0_1">-</td>
     </tr>
   </tbody>
 </table>
@@ -142,32 +142,32 @@
   </thead>
   <tbody>
     <tr>
-      <td><input type="number" class="working-cfu" value="1.00E+06"></td>
-      <td><input type="number" class="total-volume" value="4000"></td>
-      <td class="total-cfu">-</td>
+      <td><input type="number" class="working_cfu" value="1.00E+06"></td>
+      <td><input type="number" class="total_volume" value="4000"></td>
+      <td class="total_cfu">-</td>
       <td><input type="number" class="od600" value="0.2"></td>
-      <td class="culture-volume">-</td>
+      <td class="culture_volume">-</td>
     </tr>
     <tr>
-      <td><input type="number" class="working-cfu" value="1.00E+06"></td>
-      <td><input type="number" class="total-volume" value="4000"></td>
-      <td class="total-cfu">-</td>
+      <td><input type="number" class="working_cfu" value="1.00E+06"></td>
+      <td><input type="number" class="total_volume" value="4000"></td>
+      <td class="total_cfu">-</td>
       <td><input type="number" class="od600" value="0.565"></td>
-      <td class="culture-volume">-</td>
+      <td class="culture_volume">-</td>
     </tr>
     <tr>
-      <td><input type="number" class="working-cfu" value="1.00E+06"></td>
-      <td><input type="number" class="total-volume" value="4000"></td>
-      <td class="total-cfu">-</td>
+      <td><input type="number" class="working_cfu" value="1.00E+06"></td>
+      <td><input type="number" class="total_volume" value="4000"></td>
+      <td class="total_cfu">-</td>
       <td><input type="number" class="od600" value="0.2"></td>
-      <td class="culture-volume">-</td>
+      <td class="culture_volume">-</td>
     </tr>
     <tr>
-      <td><input type="number" class="working-cfu" value="1.00E+06"></td>
-      <td><input type="number" class="total-volume" value="4000"></td>
-      <td class="total-cfu">-</td>
+      <td><input type="number" class="working_cfu" value="1.00E+06"></td>
+      <td><input type="number" class="total_volume" value="4000"></td>
+      <td class="total_cfu">-</td>
       <td><input type="number" class="od600" value="0.25"></td>
-      <td class="culture-volume">-</td>
+      <td class="culture_volume">-</td>
     </tr>
   </tbody>
 </table>
@@ -184,28 +184,28 @@
       const cfu_0_2 = (colonies * dilution1 * dilution2 ) / 3;
       const cfu_0_1 = cfu_0_2 / 2;
 
-      row.querySelector(".cfu0_2").innerText = cfu_0_2.toExponential(2);
-      row.querySelector(".cfu0_1").innerText = cfu_0_1.toExponential(2);
+      row.querySelector(".cfu_0_2").innerText = cfu_0_2.toExponential(2);
+      row.querySelector(".cfu_0_1").innerText = cfu_0_1.toExponential(2);
     });
 
     // Additional calculations for bacterial culture
     const cultureRows = document.querySelectorAll(".section-title + table tbody tr");
     cultureRows.forEach(row => {
-      const workingCfu = parseFloat(row.querySelector(".working-cfu").value) || 1;
-      const totalVolume = parseFloat(row.querySelector(".total-volume").value) || 4000;
+      const workingCfu = parseFloat(row.querySelector(".working_cfu").value) || 1;
+      const totalVolume = parseFloat(row.querySelector(".total_volume").value) || 4000;
       const od600 = parseFloat(row.querySelector(".od600").value) || 0.2;
 
       // Total CFU = Working CFU/mL * Total Volume Oysters (mL)
       const totalCfu = workingCfu * totalVolume;
 
       // Get the CFU/mL at 0.1 OD from the CFU values calculated above
-      const cfu_0_1 = parseFloat(row.querySelector(".cfu0_1").innerText) || 1;
+      const cfu_0_1 = parseFloat(row.querySelector(".cfu_0_1").innerText) || 1;
 
       // Bacterial culture volume required calculation
       const cultureVolume = totalCfu / (od600 * cfu_0_1); // Adjusting for OD600 and CFU at 0.1 OD
 
-      row.querySelector(".total-cfu").innerText = totalCfu.toExponential(2); // Display the Total CFU Required
-      row.querySelector(".culture-volume").innerText = cultureVolume.toFixed(2); // Display bacterial culture volume
+      row.querySelector(".total_cfu").innerText = totalCfu.toExponential(2); // Display the Total CFU Required
+      row.querySelector(".culture_volume").innerText = cultureVolume.toFixed(2); // Display bacterial culture volume
     });
   }
 
