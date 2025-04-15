@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CFU Calculator</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    table { border-collapse: collapse; width: 100%; max-width: 800px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background-color: #f2f2f2; }
+    input[type="number"] { width: 80px; }
+  </style>
+</head>
+<body>
+
+<h2>CFU/mL Calculator (from colonies/30 µL)</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Strain</th>
+      <th>Colonies per 30 µL</th>
+      <th>Dilution Factor 1</th>
+      <th>Dilution Factor 2<br>(10 µL to 1 mL)</th>
+      <th>CFU/mL @ 0.2 OD</th>
+      <th>CFU/mL @ 0.1 OD</th>
+    </tr>
+  </thead>
+  <tbody id="cfu-table">
+    <!-- JS will insert rows -->
+  </tbody>
+</table>
+
+<script>
+const strains = [
+  { strain: 855, colonies: 19, df1: 1e6, df2: 100 },
+  { strain: 1128, colonies: 42, df1: 1e4, df2: 100 },
+  { strain: 1159, colonies: 13, df1: 1e6, df2: 100 },
+  { strain: 1572, colonies: 36, df1: 1e6, df2: 100 },
+];
+
+function calcCFU(colonies, df1, df2) {
+  const coloniesPer10uL = colonies / 3;
+  const cfu_mL = coloniesPer10uL * df1 * df2;
+  return {
+    od02: cfu_mL.toExponential(2),
+    od01: (cfu_mL / 2).toExponential(2)
+  };
+}
+
+const table = document.getElementById("cfu-table");
+
+strains.forEach((s, idx) => {
+  const row = document.createElement("tr");
+
+  const cfu = calcCFU(s.colonies, s.df1, s.df2);
+
+  row.innerHTML = `
+    <td>${s.strain}</td>
+    <td><input type="number" value="${s.colonies}" data-idx="${idx}" /></td>
+    <td>${s.df1.toExponential()}</td>
+    <td>${s.df2}</td>
+    <td class="cfu02">${cfu.od02}</td>
+    <td class="cfu01">${cfu.od01}</td>
+  `;
+
+  table.appendChild(row);
+});
+
+document.querySelectorAll('input[type="number"]').forEach(input => {
+  input.addEventListener("input", e => {
+    const idx = +e.target.dataset.idx;
+    const val = +e.target.value;
+    if (!isNaN(val)) {
+      const { df1, df2 } = strains[idx];
+      const cfu = calcCFU(val, df1, df2);
+
+      const row = e.target.closest("tr");
+      row.querySelector(".cfu02").textContent = cfu.od02;
+      row.querySelector(".cfu01").textContent = cfu.od01;
+    }
+  });
+});
+</script>
+
+</body>
+</html>
