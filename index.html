@@ -12,20 +12,24 @@
     .title {
       font-size: 24px;
       font-weight: bold;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
     .input-section {
-      margin-bottom: 25px;
+      margin-bottom: 30px;
     }
 
-    label {
-      margin-right: 10px;
+    .input-section label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
     }
 
-    input, select {
-      margin-right: 20px;
+    .input-section input {
+      width: 200px;
       padding: 5px;
+      margin-bottom: 15px;
+      display: block;
     }
 
     table {
@@ -46,7 +50,9 @@
 
     .btn {
       margin-top: 20px;
-      padding: 8px 16px;
+      padding: 10px 20px;
+      font-size: 14px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -55,13 +61,13 @@
 <div class="title">CFU Calculator</div>
 
 <div class="input-section">
-  <label>Working CFU/mL:</label>
+  <label for="workingCFU">Working CFU/mL:</label>
   <input type="number" id="workingCFU" value="1000000">
-  
-  <label>Total Volume Oysters (mL):</label>
+
+  <label for="totalVolume">Total Volume Oysters (mL):</label>
   <input type="number" id="totalVolume" value="4000">
 
-  <label>OD of Original Culture:</label>
+  <label for="originalOD">OD of Original Culture:</label>
   <input type="number" id="originalOD" value="0.2">
 </div>
 
@@ -98,6 +104,8 @@
   </tbody>
 </table>
 
+<button class="btn" onclick="exportToCSV()">Export to CSV</button>
+
 <script>
 function updateCalculations() {
   const workingCFU = parseFloat(document.getElementById("workingCFU").value) || 0;
@@ -112,21 +120,44 @@ function updateCalculations() {
     const dilution1 = parseFloat(row.querySelector(".dilution1").value) || 1;
     const dilution2 = parseFloat(row.querySelector(".dilution2").value) || 1;
 
-    // CFU/mL at OD 1.0
     const cfuPerMl = ((colonies * dilution1 * dilution2) / 3) / originalOD;
-    row.querySelector(".cfuPerMl").innerText = cfuPerMl.toExponential(2);
+    row.querySelector(".cfuPerMl").innerText = isFinite(cfuPerMl) ? cfuPerMl.toExponential(2) : "-";
+    row.querySelector(".totalCFU").innerText = isFinite(totalCFURequired) ? totalCFURequired.toExponential(2) : "-";
 
-    // Total CFU required (same for all rows)
-    row.querySelector(".totalCFU").innerText = totalCFURequired.toExponential(2);
-
-    // Required culture volume = Total CFU / (cfuPerMl * OD of original)
     const requiredVolume = totalCFURequired / (cfuPerMl * originalOD);
-    row.querySelector(".requiredVolume").innerText = requiredVolume.toFixed(2);
+    row.querySelector(".requiredVolume").innerText = isFinite(requiredVolume) ? requiredVolume.toFixed(2) : "-";
   });
+}
+
+function exportToCSV() {
+  let csv = 'Strain,Colonies per 30 uL,Dilution Factor 1,Dilution Factor 2,CFU/mL @ OD 1.0,Total CFU Required,Bacterial Culture in mL Required (for 4L)\n';
+
+  const rows = document.querySelectorAll("#tableBody tr");
+  rows.forEach(row => {
+    const strain = row.querySelector("td:nth-child(1) input").value;
+    const colonies = row.querySelector("td:nth-child(2) input").value;
+    const dilution1 = row.querySelector(".dilution1").value;
+    const dilution2 = row.querySelector(".dilution2").value;
+    const cfuPerMl = row.querySelector(".cfuPerMl").innerText;
+    const totalCFU = row.querySelector(".totalCFU").innerText;
+    const requiredVolume = row.querySelector(".requiredVolume").innerText;
+
+    csv += `${strain},${colonies},${dilution1},${dilution2},${cfuPerMl},${totalCFU},${requiredVolume}\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cfu_calculations.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 document.querySelectorAll("input, select").forEach(el => {
   el.addEventListener("input", updateCalculations);
+  el.addEventListener("change", updateCalculations);
 });
 
 updateCalculations();
