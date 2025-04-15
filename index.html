@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CFU Calculator assuming used 0.2 OD culture for the assay with three spots 10 uL each plated for colony formation</title>
+  <title>CFU Calculator: assuming used 0.2 OD culture for the assay with three spots 10 µL each plated for colony formation</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -44,7 +44,7 @@
 </head>
 <body>
 
-<div class="title">CFU calculator: assuming used 0.2 OD culture for the assay with three spots 10 uL each plated for colony formation</div>
+<div class="title">CFU calculator</div>
 
 <table>
   <thead>
@@ -198,8 +198,10 @@
       // Total CFU = Working CFU/mL * Total Volume Oysters (mL)
       const totalCfu = workingCfu * totalVolume;
 
-      // Bacterial culture volume required calculation
+      // Get the CFU/mL at 0.1 OD from the CFU values calculated above
       const cfu_0_1 = parseFloat(row.querySelector(".cfu0_1").innerText) || 1;
+
+      // Bacterial culture volume required calculation
       const cultureVolume = totalCfu / (od600 * cfu_0_1); // Adjusting for OD600 and CFU at 0.1 OD
 
       row.querySelector(".total-cfu").innerText = totalCfu.toExponential(2); // Display the Total CFU Required
