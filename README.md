@@ -1,5 +1,5 @@
 # CFU Calculator
-This tool is designed (using chatgpt) to calculate colony-forming units per milliliter (cfu/mL) and to determine the volume of bacterial culture required to achieve a target CFU, such as for a bacterial bath challenge.
+This [tool](https://pooran-dewari.github.io/cfu-calculator/) is designed (using chatgpt) to calculate colony-forming units per milliliter (cfu/mL) and to determine the volume of bacterial culture required to achieve a target CFU, such as for a bacterial bath challenge.
 
 - To calculate cfu/mL at an optical density (OD) of 1.0, input the
   -   OD of the original culture used for the CFU assay, and
