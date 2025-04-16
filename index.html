@@ -33,6 +33,11 @@
       width: 100px;
       padding: 4px;
     }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
     .btn {
       margin-top: 20px;
       padding: 10px 15px;
@@ -49,7 +54,7 @@
 
 <div class="input-section">
   <label for="originalOD">OD of Original Culture:</label>
-  <input type="number" id="originalOD" value="0.2" step="0.1" min="0.01" max="5">
+  <input type="number" id="originalOD" value="0.2" min="0.01" max="5" step="0.01">
 
   <label for="workingCFU">Final CFU/mL for bacterial challenge:</label>
   <select id="workingCFU">
@@ -62,6 +67,9 @@
 
   <label for="totalVolume">Final seawater volume for bacterial challenge (mL):</label>
   <input type="number" id="totalVolume" value="4000" step="1000" min="1000">
+
+  <label for="volumeSpread">Volume spread on plate for colony assay (µL):</label>
+  <input type="number" id="volumeSpread" value="10" min="1" step="10">
 </div>
 
 <table>
@@ -70,7 +78,6 @@
       <th>Strain</th>
       <th>Colonies per 30 µL</th>
       <th>Dilution Factor 1<br>(fold dilution)</th>
-      <th>Dilution Factor 2<br>(10 µL to 1 mL)</th>
       <th>CFU/mL @ OD 1.0</th>
       <th>OD 600</th>
       <th>Total CFU Required</th>
@@ -90,16 +97,8 @@
           <option value="1e7">1e7</option>
         </select>
       </td>
-      <td>
-        <select class="dilution2">
-          <option value="10">10</option>
-          <option value="50">50</option>
-          <option value="100" selected>100</option>
-        </select>
-      </td>
       <td class="cfuPerMl">-</td>
-      <!-- Changed to text input, and will handle validation in JS -->
-      <td><input type="text" class="od600" value="0.2" oninput="validateOD600(this)" placeholder="0.01 to 5"></td>
+      <td><input type="number" class="od600" value="0.2" min="0.01" max="5"></td>
       <td class="totalCFU">-</td>
       <td class="requiredVolume">-</td>
     </tr>
@@ -111,27 +110,18 @@
 <button class="btn" onclick="exportToCSV()">Export to CSV</button>
 
 <script>
-// Function to validate the OD600 input to ensure it stays within range
-function validateOD600(input) {
-  const value = parseFloat(input.value);
-  if (value < 0.01 || value > 5 || isNaN(value)) {
-    input.setCustomValidity("Please enter a value between 0.01 and 5.");
-  } else {
-    input.setCustomValidity(""); // Reset the custom validity message
-  }
-  updateCalculations();
-}
-
 function updateCalculations() {
   const originalOD = parseFloat(document.getElementById("originalOD").value);
   const workingCFU = parseFloat(document.getElementById("workingCFU").value);
   const totalVolume = parseFloat(document.getElementById("totalVolume").value);
+  const volumeSpread = parseFloat(document.getElementById("volumeSpread").value);
+  const dilution2 = 1000 / volumeSpread;
+
   const totalCFURequired = workingCFU * totalVolume;
 
   document.querySelectorAll("#tableBody tr").forEach(row => {
     const colonies = parseInt(row.querySelector(".colonies").value) || 0;
     const dilution1 = parseFloat(row.querySelector(".dilution1").value) || 1;
-    const dilution2 = parseInt(row.querySelector(".dilution2").value) || 1;
     const od600 = parseFloat(row.querySelector(".od600").value) || 0;
 
     const cfuCell = row.querySelector(".cfuPerMl");
@@ -141,7 +131,7 @@ function updateCalculations() {
     let cfuPerMl = "-";
     let finalVol = "-";
 
-    if (colonies > 0 && dilution2 > 0 && originalOD > 0) {
+    if (colonies > 0 && dilution1 > 0 && dilution2 > 0 && originalOD > 0 && od600 > 0) {
       const rawCFU = (colonies * dilution1 * dilution2) / 3;
       cfuPerMl = rawCFU / originalOD;
 
@@ -167,7 +157,6 @@ function addRow() {
     if (input.classList.contains("colonies")) input.value = 0;
     if (input.classList.contains("strain")) input.value = "";
     if (input.classList.contains("od600")) input.value = 0.2;
-    if (input.classList.contains("dilution2")) input.value = 100;
   });
   row.querySelectorAll(".cfuPerMl, .totalCFU, .requiredVolume").forEach(cell => cell.innerText = "-");
   tbody.appendChild(row);
@@ -182,13 +171,12 @@ function attachEvents(scope = document) {
 
 function exportToExcel() {
   const wb = XLSX.utils.book_new();
-  const ws_data = [["Strain", "Colonies", "Dilution1", "Dilution2", "CFU/mL @ OD1.0", "OD 600", "Total CFU", "Culture Volume mL"]];
+  const ws_data = [["Strain", "Colonies", "Dilution1", "CFU/mL @ OD1.0", "OD 600", "Total CFU", "Culture Volume mL"]];
   document.querySelectorAll("#tableBody tr").forEach(row => {
     ws_data.push([
       row.querySelector(".strain").value,
       row.querySelector(".colonies").value,
       row.querySelector(".dilution1").value,
-      row.querySelector(".dilution2").value,
       row.querySelector(".cfuPerMl").innerText,
       row.querySelector(".od600").value,
       row.querySelector(".totalCFU").innerText,
@@ -201,13 +189,12 @@ function exportToExcel() {
 }
 
 function exportToCSV() {
-  let csv = "Strain,Colonies,Dilution1,Dilution2,CFU/mL @ OD1.0,OD 600,Total CFU,Culture Volume mL\n";
+  let csv = "Strain,Colonies,Dilution1,CFU/mL @ OD1.0,OD 600,Total CFU,Culture Volume mL\n";
   document.querySelectorAll("#tableBody tr").forEach(row => {
     csv += [
       row.querySelector(".strain").value,
       row.querySelector(".colonies").value,
       row.querySelector(".dilution1").value,
-      row.querySelector(".dilution2").value,
       row.querySelector(".cfuPerMl").innerText,
       row.querySelector(".od600").value,
       row.querySelector(".totalCFU").innerText,
