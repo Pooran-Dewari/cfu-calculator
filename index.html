@@ -2,76 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CFU Calculator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      margin: 0;
-      box-sizing: border-box;
     }
-
-    .intro-paragraph {
-      font-size: 16px;
-      margin-bottom: 20px;
-      max-width: 600px;
-    }
-
-    ul {
-      padding-left: 20px;
-      max-width: 600px;
-      margin-top: 0;
-    }
-
-    li {
-      margin-bottom: 10px;
-    }
-
     .input-section {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-width: 600px;
       margin-bottom: 20px;
     }
-
     .input-section label {
+      display: block;
+      margin-top: 10px;
       font-weight: bold;
     }
-
-    input, select {
-      width: 100%;
-      max-width: 150px;
-      padding: 6px;
-      box-sizing: border-box;
-    }
-
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
-      overflow-x: auto;
-      display: block;
     }
-
     th, td {
       border: 1px solid #ccc;
       padding: 8px;
       text-align: center;
-      min-width: 100px;
     }
-
     th {
       background: #f4f4f4;
     }
-
+    input, select {
+      width: 100px;
+      padding: 4px;
+    }
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0;
     }
-
     .btn {
       margin-top: 20px;
       padding: 10px 15px;
@@ -79,20 +45,33 @@
       cursor: pointer;
       margin-right: 10px;
     }
-
     .error {
       background-color: #ffe6e6 !important;
     }
-
     .od600-input {
       background-color: #e6ffe6 !important;
     }
-
     .error-message {
       color: red;
       font-size: 12px;
       margin-top: 2px;
     }
+    
+    .intro-paragraph {
+  font-size: 16px;
+  margin-bottom: 20px;
+  max-width: 600px;
+}
+
+ul {
+  padding-left: 20px;
+  max-width: 600px;
+  margin-top: 0;
+}
+
+li {
+  margin-bottom: 10px;
+}
   </style>
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -110,7 +89,7 @@
 </ul>
 
 <div class="input-section">
-  <label for="workingCFU">Final CFU/mL for bacterial challenge:</label>
+  <label for="workingCFU" title="Select the desired CFU/mL for your experiment">Final CFU/mL for bacterial challenge:</label>
   <select id="workingCFU">
     <option value="1e4">1.0E+4</option>
     <option value="1e5">1.0E+5</option>
@@ -119,13 +98,13 @@
     <option value="1e8">1.0E+8</option>
   </select>
 
-  <label for="totalVolume">Final seawater volume for bacterial challenge (mL):</label>
+  <label for="totalVolume" title="Total volume of seawater into which bacteria will be added (in mL)">Final seawater volume for bacterial challenge (mL):</label>
   <input type="number" id="totalVolume" value="4000" step="1000" min="1000">
 
-  <label for="originalOD">OD of Original culture used for CFU assay:</label>
+  <label for="originalOD" title="Optical density of the culture used for CFU plating assay">OD of Original culture used for CFU assay:</label>
   <input type="number" id="originalOD" value="0.2" min="0.01" max="5" step="0.01">
 
-  <label for="volumeSpread">Volume spread on plate for colony assay (µL):</label>
+  <label for="volumeSpread" title="Volume of culture spread onto plate (in µL)">Volume spread on plate for colony assay (µL):</label>
   <input type="number" id="volumeSpread" value="30" min="1" step="10">
 </div>
 
@@ -154,6 +133,42 @@
           <option value="1e7">1e7</option>
         </select>
       </td>
+      <td class="cfuPerMl">-</td>
+      <td class="totalCFU">-</td>
+      <td>
+        <input type="number" class="od600 od600-input" value="0.2" min="0.01" max="5" step="any">
+        <div class="error-message"></div>
+      </td>
+      <td class="requiredVolume">-</td>
+    </tr>
+    <tr>
+      <td><input type="text" class="strain" value="1128"></td>
+      <td><input type="number" class="colonies" value="42" min="1" step="1"></td>
+      <td><select class="dilution1"><option value="1e4" selected>1e4</option></select></td>
+      <td class="cfuPerMl">-</td>
+      <td class="totalCFU">-</td>
+      <td>
+        <input type="number" class="od600 od600-input" value="0.2" min="0.01" max="5" step="any">
+        <div class="error-message"></div>
+      </td>
+      <td class="requiredVolume">-</td>
+    </tr>
+    <tr>
+      <td><input type="text" class="strain" value="1159"></td>
+      <td><input type="number" class="colonies" value="13" min="1" step="1"></td>
+      <td><select class="dilution1"><option value="1e6" selected>1e6</option></select></td>
+      <td class="cfuPerMl">-</td>
+      <td class="totalCFU">-</td>
+      <td>
+        <input type="number" class="od600 od600-input" value="0.2" min="0.01" max="5" step="any">
+        <div class="error-message"></div>
+      </td>
+      <td class="requiredVolume">-</td>
+    </tr>
+    <tr>
+      <td><input type="text" class="strain" value="1572"></td>
+      <td><input type="number" class="colonies" value="36" min="1" step="1"></td>
+      <td><select class="dilution1"><option value="1e6" selected>1e6</option></select></td>
       <td class="cfuPerMl">-</td>
       <td class="totalCFU">-</td>
       <td>
