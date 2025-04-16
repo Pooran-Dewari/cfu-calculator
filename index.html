@@ -53,9 +53,6 @@
 <h2>CFU Calculator</h2>
 
 <div class="input-section">
-  <label for="originalOD">OD of Original Culture:</label>
-  <input type="number" id="originalOD" value="0.2" min="0.01" max="5" step="0.01">
-
   <label for="workingCFU">Final CFU/mL for bacterial challenge:</label>
   <select id="workingCFU">
     <option value="1e4">1.0E+4</option>
@@ -67,6 +64,9 @@
 
   <label for="totalVolume">Final seawater volume for bacterial challenge (mL):</label>
   <input type="number" id="totalVolume" value="4000" step="1000" min="1000">
+  
+  <label for="originalOD">OD of Original culture used for CFU assay:</label>
+  <input type="number" id="originalOD" value="0.2" min="0.01" max="5" step="0.01">
 
   <label for="volumeSpread">Volume spread on plate for colony assay (µL):</label>
   <input type="number" id="volumeSpread" value="10" min="1" step="10">
