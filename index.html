@@ -56,6 +56,10 @@
       font-size: 12px;
       margin-top: 2px;
     }
+    .intro-paragraph {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
   </style>
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -63,10 +67,14 @@
 
 <h2>CFU Calculator</h2>
 
-<p>This tool is designed to calculate colony-forming units per milliliter (cfu/mL) and to determine the volume of bacterial culture required to achieve a target CFU, such as for a bacterial bath challenge. To calculate cfu/mL at an optical density (OD) of 1.0, input the OD of the original culture used for the CFU assay and the volume of culture spread onto the plate for colony counting (in µL). To calculate the volume of bacterial culture required to reach a specific CFU, provide the OD600 of the bacterial culture.</p>
+<p class="intro-paragraph">
+  This tool is designed to calculate colony-forming units per milliliter (cfu/mL) and to determine the volume of bacterial culture required to achieve a target CFU, such as for a bacterial bath challenge.<br>
+  <strong>To calculate cfu/mL at an optical density (OD) of 1.0, input the OD of the original culture used for the CFU assay and the volume of culture spread onto the plate for colony counting (in µL).</strong><br>
+  <strong>To calculate the volume of bacterial culture required to reach a specific CFU, provide the OD600 of the bacterial culture.</strong>
+</p>
 
 <div class="input-section">
-  <label for="workingCFU">Final CFU/mL for bacterial challenge:</label>
+  <label for="workingCFU" title="Select the desired CFU/mL for your experiment">Final CFU/mL for bacterial challenge:</label>
   <select id="workingCFU">
     <option value="1e4">1.0E+4</option>
     <option value="1e5">1.0E+5</option>
@@ -75,13 +83,13 @@
     <option value="1e8">1.0E+8</option>
   </select>
 
-  <label for="totalVolume">Final seawater volume for bacterial challenge (mL):</label>
+  <label for="totalVolume" title="Total volume of seawater into which bacteria will be added (in mL)">Final seawater volume for bacterial challenge (mL):</label>
   <input type="number" id="totalVolume" value="4000" step="1000" min="1000">
 
-  <label for="originalOD">OD of Original culture used for CFU assay:</label>
+  <label for="originalOD" title="Optical density of the culture used for CFU plating assay">OD of Original culture used for CFU assay:</label>
   <input type="number" id="originalOD" value="0.2" min="0.01" max="5" step="0.01">
 
-  <label for="volumeSpread">Volume spread on plate for colony assay (µL):</label>
+  <label for="volumeSpread" title="Volume of culture spread onto plate (in µL)">Volume spread on plate for colony assay (µL):</label>
   <input type="number" id="volumeSpread" value="30" min="1" step="10">
 </div>
 
@@ -229,20 +237,18 @@ function attachEvents(scope = document) {
 
 function exportToExcel() {
   const wb = XLSX.utils.book_new();
-  const ws_data = [["Strain", "Colonies", "Dilution1", "CFU/mL @ OD1.0", "Total CFU", "OD 600", "Culture Volume mL"]];
-
+  const ws_data = [["Strain", "Colonies", "Dilution1", "CFU/mL @ OD1.0", "Total CFU", "OD 600", "Culture Volume mL"]]; 
   document.querySelectorAll("#tableBody tr").forEach(row => {
-    ws_data.push([
-      row.querySelector(".strain").value,
+    ws_data.push([ 
+      row.querySelector(".strain").value, 
       row.querySelector(".colonies").value,
       row.querySelector(".dilution1").value,
-      row.querySelector(".cfuPerMl").innerText,
+      row.querySelector(".cfuPerMl").innerText, 
       row.querySelector(".totalCFU").innerText,
       row.querySelector(".od600").value,
       row.querySelector(".requiredVolume").innerText,
     ]);
   });
-
   const ws = XLSX.utils.aoa_to_sheet(ws_data);
   XLSX.utils.book_append_sheet(wb, ws, "CFU Data");
   XLSX.writeFile(wb, "CFU_Calculator.xlsx");
