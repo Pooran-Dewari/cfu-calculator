@@ -132,7 +132,7 @@ function updateCalculations() {
     let finalVol = "-";
 
     if (colonies > 0 && dilution1 > 0 && dilution2 > 0 && originalOD > 0 && od600 > 0) {
-      const rawCFU = (colonies * dilution1 * dilution2) / 3;
+      const rawCFU = colonies * dilution1 * dilution2;
       cfuPerMl = rawCFU / originalOD;
 
       cfuCell.innerText = cfuPerMl.toExponential(2);
