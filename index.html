@@ -59,6 +59,15 @@
     .intro-paragraph {
       font-size: 16px;
       margin-bottom: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    ul {
+      padding-left: 20px; /* Aligns the bullet points with the content */
+      max-width: 600px;
+    }
+    li {
+      margin-bottom: 10px;
     }
   </style>
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -70,7 +79,8 @@
 <p class="intro-paragraph">
   This tool is designed to calculate colony-forming units per milliliter (cfu/mL) and to determine the volume of bacterial culture required to achieve a target CFU, such as for a bacterial bath challenge.
 </p>
-<ul style="max-width: 600px; margin: 0 auto;">
+
+<ul>
   <li>To calculate cfu/mL at an optical density (OD) of 1.0, input the OD of the original culture used for the CFU assay and the volume of culture spread onto the plate for colony counting (in µL).</li>
   <li>To calculate the volume of bacterial culture required to reach a specific CFU, provide the OD600 of the bacterial culture.</li>
 </ul>
@@ -239,13 +249,13 @@ function attachEvents(scope = document) {
 
 function exportToExcel() {
   const wb = XLSX.utils.book_new();
-  const ws_data = [["Strain", "Colonies", "Dilution1", "CFU/mL @ OD1.0", "Total CFU", "OD 600", "Culture Volume mL"]]; 
+  const ws_data = [["Strain", "Colonies", "Dilution1", "CFU/mL @ OD1.0", "Total CFU", "OD 600", "Culture Volume mL"]];
   document.querySelectorAll("#tableBody tr").forEach(row => {
-    ws_data.push([ 
-      row.querySelector(".strain").value, 
+    ws_data.push([
+      row.querySelector(".strain").value,
       row.querySelector(".colonies").value,
       row.querySelector(".dilution1").value,
-      row.querySelector(".cfuPerMl").innerText, 
+      row.querySelector(".cfuPerMl").innerText,
       row.querySelector(".totalCFU").innerText,
       row.querySelector(".od600").value,
       row.querySelector(".requiredVolume").innerText,
