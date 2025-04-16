@@ -63,6 +63,8 @@
 
 <h2>CFU Calculator</h2>
 
+<p>This tool is designed to calculate colony-forming units per milliliter (cfu/mL) and to determine the volume of bacterial culture required to achieve a target CFU, such as for a bacterial bath challenge. To calculate cfu/mL at an optical density (OD) of 1.0, input the OD of the original culture used for the CFU assay and the volume of culture spread onto the plate for colony counting (in µL). To calculate the volume of bacterial culture required to reach a specific CFU, provide the OD600 of the bacterial culture.</p>
+
 <div class="input-section">
   <label for="workingCFU">Final CFU/mL for bacterial challenge:</label>
   <select id="workingCFU">
@@ -228,6 +230,7 @@ function attachEvents(scope = document) {
 function exportToExcel() {
   const wb = XLSX.utils.book_new();
   const ws_data = [["Strain", "Colonies", "Dilution1", "CFU/mL @ OD1.0", "Total CFU", "OD 600", "Culture Volume mL"]];
+
   document.querySelectorAll("#tableBody tr").forEach(row => {
     ws_data.push([
       row.querySelector(".strain").value,
@@ -239,6 +242,7 @@ function exportToExcel() {
       row.querySelector(".requiredVolume").innerText,
     ]);
   });
+
   const ws = XLSX.utils.aoa_to_sheet(ws_data);
   XLSX.utils.book_append_sheet(wb, ws, "CFU Data");
   XLSX.writeFile(wb, "CFU_Calculator.xlsx");
