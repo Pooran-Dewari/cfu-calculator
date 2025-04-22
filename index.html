@@ -4,11 +4,10 @@
   <meta charset="UTF-8">
   <title>CFU Calculator</title>
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 20px;
+      padding: 40px;
       background-color: #f9fbfc;
       color: #333;
     }
@@ -26,7 +25,22 @@
     }
 
     .content {
-      flex: 1 1 100%;
+      flex: 1 1 50%;
+      min-width: 400px;
+    }
+
+    .image-container {
+      flex: 1 1 40%;
+      min-width: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .image-container img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
     }
 
     .intro-paragraph, ul {
@@ -62,11 +76,10 @@
     }
 
     input, select {
-      width: 100%;
+      width: 140px;
       padding: 6px 8px;
       margin-top: 5px;
       font-size: 14px;
-      box-sizing: border-box;
     }
 
     table {
@@ -128,12 +141,12 @@
     <h2>CFU Calculator</h2>
 
     <p class="intro-paragraph">
-      This tool calculates colony-forming units per milliliter (cfu/mL) and determines the volume of bacterial culture required to achieve a target CFU (e.g., for a bath challenge).
+      This tool is designed to calculate colony-forming units per milliliter (cfu/mL) and to determine the volume of bacterial culture required to achieve a target CFU, such as for a bacterial bath challenge.
     </p>
 
     <ul>
-      <li>To calculate CFU/mL at OD = 1.0, input OD of the original culture used and volume spread for colony counting (µL).</li>
-      <li>To calculate required culture volume to reach target CFU (default 1.0E+06), input the OD600 of your bacterial culture.</li>
+      <li>To calculate cfu/mL at an optical density (OD) of 1.0, input the OD of the original culture used for the CFU assay and the volume of culture spread onto the plate for colony counting (in µL).</li>
+      <li>To calculate the volume of bacterial culture required to reach a specific CFU, provide the OD600 of the bacterial culture (based on assumption bath challenge volume is 4L and target cfu/mL is 1.0E+06).</li>
     </ul>
 
     <div class="input-section">
@@ -146,14 +159,14 @@
         <option value="1e8">1.0E+8</option>
       </select>
 
-      <label for="totalVolume">Final seawater volume (mL):</label>
+      <label for="totalVolume">Final seawater volume for bacterial challenge (mL):</label>
       <input type="number" id="totalVolume" value="4000" step="1000" min="1000">
 
-      <label for="originalOD">OD of original culture used for CFU assay:</label>
-      <input type="number" id="originalOD" value="0.2" step="0.01" min="0.01" max="5">
+      <label for="originalOD">OD of Original culture used for CFU assay:</label>
+      <input type="number" id="originalOD" value="0.2" min="0.01" max="5" step="0.01">
 
-      <label for="volumeSpread">Volume spread on plate (µL):</label>
-      <input type="number" id="volumeSpread" value="30" step="10" min="1">
+      <label for="volumeSpread">Volume spread on plate for colony assay (µL):</label>
+      <input type="number" id="volumeSpread" value="30" min="1" step="10">
     </div>
 
     <table>
@@ -169,16 +182,84 @@
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td><input type="text" class="strain" value="855"></td><td><input type="number" class="colonies" value="19"></td><td><select class="dilution1"></select></td><td class="cfuPerMl">-</td><td class="totalCFU">-</td><td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td><td class="requiredVolume">-</td></tr>
-        <tr><td><input type="text" class="strain" value="1326"></td><td><input type="number" class="colonies" value="19"></td><td><select class="dilution1"></select></td><td class="cfuPerMl">-</td><td class="totalCFU">-</td><td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td><td class="requiredVolume">-</td></tr>
-        <tr><td><input type="text" class="strain" value="1128"></td><td><input type="number" class="colonies" value="19"></td><td><select class="dilution1"></select></td><td class="cfuPerMl">-</td><td class="totalCFU">-</td><td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td><td class="requiredVolume">-</td></tr>
-        <tr><td><input type="text" class="strain" value="1309"></td><td><input type="number" class="colonies" value="19"></td><td><select class="dilution1"></select></td><td class="cfuPerMl">-</td><td class="totalCFU">-</td><td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td><td class="requiredVolume">-</td></tr>
+        <tr>
+          <td><input type="text" class="strain" value="855"></td>
+          <td><input type="number" class="colonies" value="19"></td>
+          <td><select class="dilution1">
+            <option value="1e2">1e2</option>
+            <option value="1e3">1e3</option>
+            <option value="1e4">1e4</option>
+            <option value="1e5">1e5</option>
+            <option value="1e6" selected>1e6</option>
+            <option value="1e7">1e7</option>
+            <option value="1e8">1e8</option>
+          </select></td>
+          <td class="cfuPerMl">-</td>
+          <td class="totalCFU">-</td>
+          <td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td>
+          <td class="requiredVolume">-</td>
+        </tr>
+        <tr>
+          <td><input type="text" class="strain" value="1128"></td>
+          <td><input type="number" class="colonies" value="42"></td>
+          <td><select class="dilution1">
+            <option value="1e2">1e2</option>
+            <option value="1e3">1e3</option>
+            <option value="1e4">1e4</option>
+            <option value="1e5">1e5</option>
+            <option value="1e6" selected>1e6</option>
+            <option value="1e7">1e7</option>
+            <option value="1e8">1e8</option>
+          </select></td>
+          <td class="cfuPerMl">-</td>
+          <td class="totalCFU">-</td>
+          <td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td>
+          <td class="requiredVolume">-</td>
+        </tr>
+        <tr>
+          <td><input type="text" class="strain" value="1159"></td>
+          <td><input type="number" class="colonies" value="13"></td>
+          <td><select class="dilution1">
+            <option value="1e2">1e2</option>
+            <option value="1e3">1e3</option>
+            <option value="1e4">1e4</option>
+            <option value="1e5">1e5</option>
+            <option value="1e6" selected>1e6</option>
+            <option value="1e7">1e7</option>
+            <option value="1e8">1e8</option>
+          </select></td>
+          <td class="cfuPerMl">-</td>
+          <td class="totalCFU">-</td>
+          <td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td>
+          <td class="requiredVolume">-</td>
+        </tr>
+        <tr>
+          <td><input type="text" class="strain" value="1572"></td>
+          <td><input type="number" class="colonies" value="36"></td>
+          <td><select class="dilution1">
+            <option value="1e2">1e2</option>
+            <option value="1e3">1e3</option>
+            <option value="1e4">1e4</option>
+            <option value="1e5">1e5</option>
+            <option value="1e6" selected>1e6</option>
+            <option value="1e7">1e7</option>
+            <option value="1e8">1e8</option>
+          </select></td>
+          <td class="cfuPerMl">-</td>
+          <td class="totalCFU">-</td>
+          <td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td>
+          <td class="requiredVolume">-</td>
+        </tr>
       </tbody>
     </table>
 
     <button class="btn" onclick="addRow()">Add Row</button>
     <button class="btn" onclick="exportToExcel()">Export to Excel</button>
     <button class="btn" onclick="exportToCSV()">Export to CSV</button>
+  </div>
+
+  <div class="image-container">
+    <img src="cfu.jpg" alt="CFU Illustration">
   </div>
 </div>
 
@@ -192,7 +273,7 @@ function updateCalculations() {
   const totalCFURequired = workingCFU * totalVolume;
 
   document.querySelectorAll("#tableBody tr").forEach(row => {
-    const colonies = parseFloat(row.querySelector(".colonies").value) || 0;
+    const colonies = parseInt(row.querySelector(".colonies").value) || 0;
     const dilution1 = parseFloat(row.querySelector(".dilution1").value) || 1;
     const od600Input = row.querySelector(".od600");
     const od600 = parseFloat(od600Input.value) || 0;
@@ -230,16 +311,20 @@ function updateDilutionDefaults() {
   document.querySelectorAll("#tableBody tr").forEach(row => {
     const strainInput = row.querySelector(".strain");
     const dilutionSelect = row.querySelector(".dilution1");
+    const currentVal = dilutionSelect.value;
     const strainVal = strainInput.value.trim();
 
+    const dilutionOptions = ['1e2', '1e3', '1e4', '1e5', '1e6', '1e7', '1e8'];
     dilutionSelect.innerHTML = '';
-    ['1e2','1e3','1e4','1e5','1e6','1e7','1e8'].forEach(factor => {
-      const opt = document.createElement('option');
-      opt.value = factor;
-      opt.textContent = factor;
-      dilutionSelect.appendChild(opt);
+
+    dilutionOptions.forEach(factor => {
+      const option = document.createElement('option');
+      option.value = factor;
+      option.textContent = factor;
+      dilutionSelect.appendChild(option);
     });
 
+    // Default selection logic
     if (strainVal === '1128') {
       dilutionSelect.value = '1e4';
     } else {
@@ -253,8 +338,8 @@ function addRow() {
   const tbody = document.getElementById("tableBody");
   const newRow = tbody.insertRow();
   newRow.innerHTML = `
-    <td><input type="text" class="strain" value=""></td>
-    <td><input type="number" class="colonies" value=""></td>
+    <td><input type="text" class="strain" value="855"></td>
+    <td><input type="number" class="colonies" value="19"></td>
     <td><select class="dilution1"></select></td>
     <td class="cfuPerMl">-</td>
     <td class="totalCFU">-</td>
@@ -289,9 +374,11 @@ function exportToCSV() {
   link.click();
 }
 
+// Initial setup
 attachStrainListener();
 updateDilutionDefaults();
 </script>
+
 
 </body>
 </html>
