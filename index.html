@@ -4,10 +4,6 @@
   <meta charset="UTF-8">
   <title>CFU Calculator</title>
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-
-  <!-- Optional: Modern monospace font -->
-  <!-- <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet"> -->
-
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -111,34 +107,218 @@
       font-size: 12px;
       margin-top: 2px;
     }
-
-    /* Stylish output for injection section */
-    .input-section strong {
-      display: inline-block;
-      width: 250px;
-      color: #2a4d69;
-      font-weight: 600;
-      font-size: 15px;
-    }
-
-    .input-section span {
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 16px;
-      color: #333;
-      background-color: #eef6ff;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: bold;
-    }
   </style>
 </head>
 <body>
 
-<!-- Your existing content remains unchanged -->
-<!-- ... Full CFU calculator HTML and JS goes here ... -->
+<h2>CFU Calculator</h2>
 
-<!-- Everything below Injection Calculations remains the same, just stylized -->
+<p class="intro-paragraph">
+  This tool is designed to calculate colony-forming units per milliliter (cfu/mL) and to determine the volume of bacterial culture required to achieve a target CFU, such as for a bacterial bath challenge.
+</p>
 
+<ul>
+  <li>To calculate cfu/mL at an optical density (OD) of 1.0, input the OD of the original culture used for the CFU assay and the volume of culture spread onto the plate for colony counting (in µL).</li>
+  <li>To calculate the volume of bacterial culture required to reach a specific CFU, provide the OD600 of the bacterial culture (based on assumption bath challenge volume is 4L and target cfu/mL is 1.0E+06).</li>
+</ul>
+
+<div class="input-section">
+  <label for="workingCFU">Final CFU/mL for bacterial challenge:</label>
+  <select id="workingCFU">
+    <option value="1e4">1.0E+4</option>
+    <option value="1e5">1.0E+5</option>
+    <option value="1e6" selected>1.0E+6</option>
+    <option value="1e7">1.0E+7</option>
+    <option value="1e8">1.0E+8</option>
+  </select>
+
+  <label for="totalVolume">Final seawater volume for bacterial challenge (mL):</label>
+  <input type="number" id="totalVolume" value="4000" step="1000" min="1000">
+
+  <label for="originalOD">OD of Original culture used for CFU assay:</label>
+  <input type="number" id="originalOD" value="0.2" min="0.01" max="5" step="0.01">
+
+  <label for="volumeSpread">Volume spread on plate for colony assay (µL):</label>
+  <input type="number" id="volumeSpread" value="30" min="1" step="10">
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Strain</th>
+      <th>Total colony count</th>
+      <th>Dilution Factor</th>
+      <th>CFU/mL @ OD 1.0</th>
+      <th>Total CFU Required</th>
+      <th>OD 600</th>
+      <th>Bacterial Culture Required (mL)</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody">
+    <tr>
+      <td><input type="text" class="strain" value="855"></td>
+      <td><input type="number" class="colonies" value="19"></td>
+      <td>
+        <select class="dilution1">
+          <option value="1e3">1e3</option>
+          <option value="1e4">1e4</option>
+          <option value="1e5">1e5</option>
+          <option value="1e6" selected>1e6</option>
+          <option value="1e7">1e7</option>
+        </select>
+      </td>
+      <td class="cfuPerMl">-</td>
+      <td class="totalCFU">-</td>
+      <td>
+        <input type="number" class="od600 od600-input" value="0.2" step="any">
+        <div class="error-message"></div>
+      </td>
+      <td class="requiredVolume">-</td>
+    </tr>
+    <tr>
+      <td><input type="text" class="strain" value="1128"></td>
+      <td><input type="number" class="colonies" value="42"></td>
+      <td><select class="dilution1"><option value="1e4" selected>1e4</option></select></td>
+      <td class="cfuPerMl">-</td>
+      <td class="totalCFU">-</td>
+      <td><input type="number" class="od600 od600-input" value="0.2" step="any"><div class="error-message"></div></td>
+      <td class="requiredVolume">-</td>
+    </tr>
+    <tr>
+      <td><input type="text" class="strain" value="1159"></td>
+      <td><input type="number" class="colonies" value="13"></td>
+      <td><select class="dilution1"><option value="1e6" selected>1e6</option></select></td>
+      <td class="cfuPerMl">-</td>
+      <td class="totalCFU">-</td>
+      <td><input type="number" class="od600 od600-input" value="0.2" step="any"><div class="error-message"></div></td>
+      <td class="requiredVolume">-</td>
+    </tr>
+    <tr>
+      <td><input type="text" class="strain" value="1572"></td>
+      <td><input type="number" class="colonies" value="36"></td>
+      <td><select class="dilution1"><option value="1e6" selected>1e6</option></select></td>
+      <td class="cfuPerMl">-</td>
+      <td class="totalCFU">-</td>
+      <td><input type="number" class="od600 od600-input" value="0.2" step="any"><div class="error-message"></div></td>
+      <td class="requiredVolume">-</td>
+    </tr>
+  </tbody>
+</table>
+
+<button class="btn" onclick="addRow()">Add Row</button>
+<button class="btn" onclick="exportToExcel()">Export to Excel</button>
+<button class="btn" onclick="exportToCSV()">Export to CSV</button>
+
+<script>
+function updateCalculations() {
+  const originalOD = parseFloat(document.getElementById("originalOD").value);
+  const workingCFU = parseFloat(document.getElementById("workingCFU").value);
+  const totalVolume = parseFloat(document.getElementById("totalVolume").value);
+  const volumeSpread = parseFloat(document.getElementById("volumeSpread").value);
+  const dilution2 = 1000 / volumeSpread;
+  const totalCFURequired = workingCFU * totalVolume;
+
+  document.querySelectorAll("#tableBody tr").forEach(row => {
+    const colonies = parseInt(row.querySelector(".colonies").value) || 0;
+    const dilution1 = parseFloat(row.querySelector(".dilution1").value) || 1;
+    const od600Input = row.querySelector(".od600");
+    const od600 = parseFloat(od600Input.value) || 0;
+
+    const cfuCell = row.querySelector(".cfuPerMl");
+    const totalCFUCell = row.querySelector(".totalCFU");
+    const volumeCell = row.querySelector(".requiredVolume");
+    const errorDiv = row.querySelector(".error-message");
+
+    row.classList.remove("error");
+    errorDiv.textContent = "";
+
+    if (od600 < 0.01 || od600 > 5) {
+      row.classList.add("error");
+      errorDiv.textContent = "OD must be between 0.01 and 5";
+    }
+
+    if (colonies > 0 && dilution1 > 0 && dilution2 > 0 && originalOD > 0 && od600 >= 0.01 && od600 <= 5) {
+      const rawCFU = colonies * dilution1 * dilution2;
+      const cfuPerMl = rawCFU / originalOD;
+      const finalVol = totalCFURequired / (cfuPerMl * od600);
+
+      cfuCell.innerText = cfuPerMl.toExponential(2);
+      totalCFUCell.innerText = totalCFURequired.toExponential(2);
+      volumeCell.innerText = isFinite(finalVol) ? finalVol.toFixed(2) : "-";
+    } else {
+      cfuCell.innerText = "-";
+      totalCFUCell.innerText = "-";
+      volumeCell.innerText = "-";
+    }
+  });
+}
+
+function addRow() {
+  const tbody = document.getElementById("tableBody");
+  const firstRow = tbody.rows[0];
+  const row = firstRow.cloneNode(true);
+  row.querySelectorAll("input").forEach(input => {
+    if (input.classList.contains("colonies")) input.value = 0;
+    if (input.classList.contains("strain")) input.value = "";
+    if (input.classList.contains("od600")) input.value = 0.2;
+  });
+  row.querySelectorAll(".cfuPerMl, .totalCFU, .requiredVolume").forEach(cell => cell.innerText = "-");
+  row.querySelector(".error-message").textContent = "";
+  row.classList.remove("error");
+  tbody.appendChild(row);
+  attachEvents(row);
+}
+
+function attachEvents(scope = document) {
+  scope.querySelectorAll("input, select").forEach(el => {
+    el.addEventListener("input", updateCalculations);
+  });
+}
+
+function exportToExcel() {
+  const wb = XLSX.utils.book_new();
+  const ws_data = [["Strain", "Colonies", "Dilution1", "CFU/mL @ OD1.0", "Total CFU", "OD 600", "Culture Volume mL"]];
+  document.querySelectorAll("#tableBody tr").forEach(row => {
+    ws_data.push([
+      row.querySelector(".strain").value,
+      row.querySelector(".colonies").value,
+      row.querySelector(".dilution1").value,
+      row.querySelector(".cfuPerMl").innerText,
+      row.querySelector(".totalCFU").innerText,
+      row.querySelector(".od600").value,
+      row.querySelector(".requiredVolume").innerText,
+    ]);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  XLSX.utils.book_append_sheet(wb, ws, "CFU Data");
+  XLSX.writeFile(wb, "CFU_Calculator.xlsx");
+}
+
+function exportToCSV() {
+  let csv = "Strain,Colonies,Dilution1,CFU/mL @ OD1.0,Total CFU,OD 600,Culture Volume mL\n";
+  document.querySelectorAll("#tableBody tr").forEach(row => {
+    csv += [
+      row.querySelector(".strain").value,
+      row.querySelector(".colonies").value,
+      row.querySelector(".dilution1").value,
+      row.querySelector(".cfuPerMl").innerText,
+      row.querySelector(".totalCFU").innerText,
+      row.querySelector(".od600").value,
+      row.querySelector(".requiredVolume").innerText,
+    ].join(",") + "\n";
+  });
+  const blob = new Blob([csv], {type: "text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "CFU_Calculator.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+attachEvents();
+updateCalculations();
+</script>
 <hr style="margin: 40px 0;">
 
 <h2>Injection Calculations</h2>
@@ -178,10 +358,10 @@ function updateInjectionCalc() {
   const animalsWithBuffer = Math.ceil(animals * 1.2);
   const totalCFU = animalsWithBuffer * targetCFU;
   const cultureRequired = totalCFU / (cultureOD * od600CFU);
+
   const resuspendVolume = (animalsWithBuffer * injectVol) / 1000;
 
   document.getElementById("animalWithBuffer").innerText = animalsWithBuffer;
-  document.getElementById("totalCFURequired").innerText = totalCFU.toExponential(2);
   document.getElementById("cultureRequired").innerText = cultureRequired.toFixed(2);
   document.getElementById("resuspendVol").innerText = resuspendVolume.toFixed(2);
 }
@@ -193,5 +373,6 @@ document.querySelectorAll("#od600CFU, #targetCFU, #animalCount, #cultureOD, #inj
 updateInjectionCalc();
 </script>
 
+  
 </body>
 </html>
