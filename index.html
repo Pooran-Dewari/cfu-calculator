@@ -341,7 +341,6 @@ updateCalculations();
 
   <div style="margin-top: 20px;">
     <strong>Animals to inject + 20%:</strong> <span id="animalWithBuffer">108</span><br>
-    <strong>Total CFU required:</strong> <span id="totalCFURequired">1.08e+9</span><br>
     <strong>Bacterial culture required (mL):</strong> <span id="cultureRequired">10.80</span><br>
     <strong>Resuspend in ASW (mL):</strong> <span id="resuspendVol">5.40</span>
   </div>
@@ -362,6 +361,7 @@ function updateInjectionCalc() {
   const resuspendVolume = (animalsWithBuffer * injectVol) / 1000;
 
   document.getElementById("animalWithBuffer").innerText = animalsWithBuffer;
+  document.getElementById("totalCFURequired").innerText = totalCFU.toExponential(2);
   document.getElementById("cultureRequired").innerText = cultureRequired.toFixed(2);
   document.getElementById("resuspendVol").innerText = resuspendVolume.toFixed(2);
 }
