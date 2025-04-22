@@ -320,5 +320,59 @@ attachEvents();
 updateCalculations();
 </script>
 
+<hr style="margin: 40px 0;">
+
+<h2>Injection Calculations</h2>
+
+<div class="input-section">
+  <label for="od600CFU">OD600 1.0 cfu/mL:</label>
+  <input type="number" id="od600CFU" value="1e8" step="1e7">
+
+  <label for="targetCFU">Per injection target CFU:</label>
+  <input type="number" id="targetCFU" value="1e7" step="1e6">
+
+  <label for="animalCount">Animals to inject:</label>
+  <input type="number" id="animalCount" value="90" step="1">
+
+  <label for="cultureOD">Bacterial culture OD600:</label>
+  <input type="number" id="cultureOD" value="0.4" step="0.1" min="0.01" max="5">
+
+  <label for="injectVol">Per injection volume (µL):</label>
+  <input type="number" id="injectVol" value="50" step="1">
+
+  <div style="margin-top: 20px;">
+    <strong>Animals to inject + 20%:</strong> <span id="animalWithBuffer">108</span><br>
+    <strong>Total CFU required:</strong> <span id="totalCFURequired">1.08e+9</span><br>
+    <strong>Bacterial culture required (mL):</strong> <span id="cultureRequired">10.80</span><br>
+    <strong>Resuspend in ASW (mL):</strong> <span id="resuspendVol">5.40</span>
+  </div>
+</div>
+
+<script>
+function updateInjectionCalc() {
+  const od600CFU = parseFloat(document.getElementById("od600CFU").value) || 1e8;
+  const targetCFU = parseFloat(document.getElementById("targetCFU").value) || 1e7;
+  const animals = parseInt(document.getElementById("animalCount").value) || 0;
+  const cultureOD = parseFloat(document.getElementById("cultureOD").value) || 0.4;
+  const injectVol = parseFloat(document.getElementById("injectVol").value) || 50;
+
+  const animalsWithBuffer = Math.ceil(animals * 1.2);
+  const totalCFU = animalsWithBuffer * targetCFU;
+  const cultureRequired = totalCFU / od600CFU;
+  const resuspendVolume = (animalsWithBuffer * injectVol) / 1000;
+
+  document.getElementById("animalWithBuffer").innerText = animalsWithBuffer;
+  document.getElementById("totalCFURequired").innerText = totalCFU.toExponential(2);
+  document.getElementById("cultureRequired").innerText = cultureRequired.toFixed(2);
+  document.getElementById("resuspendVol").innerText = resuspendVolume.toFixed(2);
+}
+
+document.querySelectorAll("#od600CFU, #targetCFU, #animalCount, #cultureOD, #injectVol").forEach(el => {
+  el.addEventListener("input", updateInjectionCalc);
+});
+
+updateInjectionCalc();
+</script>
+
 </body>
 </html>
