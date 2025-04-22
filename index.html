@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <title>CFU Calculator</title>
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 40px;
       background-color: #f9fbfc;
       color: #333;
+      margin: 0;
     }
 
     h2 {
@@ -76,14 +78,22 @@
     }
 
     input, select {
-      width: 140px;
+      width: 100%;
+      max-width: 140px;
       padding: 6px 8px;
       margin-top: 5px;
       font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
     }
 
     table {
       width: 100%;
+      min-width: 800px;
       border-collapse: collapse;
       background-color: #fff;
       border: 1px solid #ddd;
@@ -132,6 +142,24 @@
       font-size: 12px;
       margin-top: 2px;
     }
+
+    @media (max-width: 768px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      .content, .image-container {
+        min-width: 100% !important;
+      }
+
+      .input-section {
+        max-width: 100%;
+      }
+
+      input, select {
+        max-width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -169,89 +197,32 @@
       <input type="number" id="volumeSpread" value="30" min="1" step="10">
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Strain</th>
-          <th>Total colony count</th>
-          <th>Dilution Factor</th>
-          <th>CFU/mL @ OD 1.0</th>
-          <th>Total CFU Required</th>
-          <th>OD 600</th>
-          <th>Bacterial Culture Required (mL)</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <tr>
-          <td><input type="text" class="strain" value="855"></td>
-          <td><input type="number" class="colonies" value="19"></td>
-          <td><select class="dilution1">
-            <option value="1e2">1e2</option>
-            <option value="1e3">1e3</option>
-            <option value="1e4">1e4</option>
-            <option value="1e5">1e5</option>
-            <option value="1e6" selected>1e6</option>
-            <option value="1e7">1e7</option>
-            <option value="1e8">1e8</option>
-          </select></td>
-          <td class="cfuPerMl">-</td>
-          <td class="totalCFU">-</td>
-          <td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td>
-          <td class="requiredVolume">-</td>
-        </tr>
-        <tr>
-          <td><input type="text" class="strain" value="1128"></td>
-          <td><input type="number" class="colonies" value="42"></td>
-          <td><select class="dilution1">
-            <option value="1e2">1e2</option>
-            <option value="1e3">1e3</option>
-            <option value="1e4">1e4</option>
-            <option value="1e5">1e5</option>
-            <option value="1e6" selected>1e6</option>
-            <option value="1e7">1e7</option>
-            <option value="1e8">1e8</option>
-          </select></td>
-          <td class="cfuPerMl">-</td>
-          <td class="totalCFU">-</td>
-          <td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td>
-          <td class="requiredVolume">-</td>
-        </tr>
-        <tr>
-          <td><input type="text" class="strain" value="1159"></td>
-          <td><input type="number" class="colonies" value="13"></td>
-          <td><select class="dilution1">
-            <option value="1e2">1e2</option>
-            <option value="1e3">1e3</option>
-            <option value="1e4">1e4</option>
-            <option value="1e5">1e5</option>
-            <option value="1e6" selected>1e6</option>
-            <option value="1e7">1e7</option>
-            <option value="1e8">1e8</option>
-          </select></td>
-          <td class="cfuPerMl">-</td>
-          <td class="totalCFU">-</td>
-          <td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td>
-          <td class="requiredVolume">-</td>
-        </tr>
-        <tr>
-          <td><input type="text" class="strain" value="1572"></td>
-          <td><input type="number" class="colonies" value="36"></td>
-          <td><select class="dilution1">
-            <option value="1e2">1e2</option>
-            <option value="1e3">1e3</option>
-            <option value="1e4">1e4</option>
-            <option value="1e5">1e5</option>
-            <option value="1e6" selected>1e6</option>
-            <option value="1e7">1e7</option>
-            <option value="1e8">1e8</option>
-          </select></td>
-          <td class="cfuPerMl">-</td>
-          <td class="totalCFU">-</td>
-          <td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td>
-          <td class="requiredVolume">-</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Strain</th>
+            <th>Total colony count</th>
+            <th>Dilution Factor</th>
+            <th>CFU/mL @ OD 1.0</th>
+            <th>Total CFU Required</th>
+            <th>OD 600</th>
+            <th>Bacterial Culture Required (mL)</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td><input type="text" class="strain" value="855"></td>
+            <td><input type="number" class="colonies" value="19"></td>
+            <td><select class="dilution1"></select></td>
+            <td class="cfuPerMl">-</td>
+            <td class="totalCFU">-</td>
+            <td><input type="number" class="od600 od600-input" value="0.2"><div class="error-message"></div></td>
+            <td class="requiredVolume">-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <button class="btn" onclick="addRow()">Add Row</button>
     <button class="btn" onclick="exportToExcel()">Export to Excel</button>
@@ -311,7 +282,6 @@ function updateDilutionDefaults() {
   document.querySelectorAll("#tableBody tr").forEach(row => {
     const strainInput = row.querySelector(".strain");
     const dilutionSelect = row.querySelector(".dilution1");
-    const currentVal = dilutionSelect.value;
     const strainVal = strainInput.value.trim();
 
     const dilutionOptions = ['1e2', '1e3', '1e4', '1e5', '1e6', '1e7', '1e8'];
@@ -324,7 +294,6 @@ function updateDilutionDefaults() {
       dilutionSelect.appendChild(option);
     });
 
-    // Default selection logic
     if (strainVal === '1128') {
       dilutionSelect.value = '1e4';
     } else {
@@ -378,7 +347,6 @@ function exportToCSV() {
 attachStrainListener();
 updateDilutionDefaults();
 </script>
-
 
 </body>
 </html>
