@@ -358,7 +358,8 @@ function updateInjectionCalc() {
 
   const animalsWithBuffer = Math.ceil(animals * 1.2);
   const totalCFU = animalsWithBuffer * targetCFU;
-  const cultureRequired = totalCFU / od600CFU;
+  const cultureRequired = totalCFU / (cultureOD * od600CFU);
+
   const resuspendVolume = (animalsWithBuffer * injectVol) / 1000;
 
   document.getElementById("animalWithBuffer").innerText = animalsWithBuffer;
